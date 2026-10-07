@@ -1,0 +1,17 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dopes.seamlessloading.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientCommonPacketListenerMixin",
+    "ConnectScreenMixin",
+    "GameRendererMixin",
+    "LevelLoadingScreenMixin",
+    "LevelLoadTrackerMixin",
+    "MinecraftClientMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "dopes_seamless_loading_screen.config.title": "Настройки dope's Seamless Loading Screen",
+  "dopes_seamless_loading_screen.config.page": "Настройки",
+
+  "modmenu.nameTranslation.dopes_seamless_loading_screen": "dope's Seamless Loading Screen",
+  "modmenu.summaryTranslation.dopes_seamless_loading_screen": "Делает скриншот при выходе из мира или с сервера и показывает его при повторном входе.",
+  "modmenu.descriptionTranslation.dopes_seamless_loading_screen": "Делает скриншот игры при выходе из мира или с сервера и показывает его на экране загрузки при повторном входе. Слайд-шоу, счётчик чанков и плавные анимации затухания.",
+  
+  "dopes_seamless_loading_screen.config.general": "Основные",
+  "dopes_seamless_loading_screen.config.general.enabled": "Мод включён",
+  "dopes_seamless_loading_screen.config.general.enabled.description": "Включить или отключить весь мод.",
+  "dopes_seamless_loading_screen.config.general.slideshow": "Слайд-шоу, если нет скриншота",
+  "dopes_seamless_loading_screen.config.general.slideshow.description": "Показывать слайд-шоу вместо статичного фона, если у мира ещё нет скриншота.",
+  "dopes_seamless_loading_screen.config.general.waitChunks": "Ждать все чанки",
+  "dopes_seamless_loading_screen.config.general.waitChunks.description": "Дожидаться полной загрузки всех чанков перед началом fade анимации.",
+  "dopes_seamless_loading_screen.config.general.chunkCounter": "Счётчик чанков",
+  "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Показывать сверху экрана прогресс загрузки чанков (сколько прогружено / всего).",
+  "dopes_seamless_loading_screen.config.general.serverScreenshots": "Скриншоты для серверов",
+  "dopes_seamless_loading_screen.config.general.serverScreenshots.description": "Делать и показывать скриншоты при игре на серверах. Если выключено, для серверов скриншоты не создаются и не показываются, а на экране загрузки вместо них будет слайд-шоу (если оно включено). Счётчик чанков продолжает работать.",
+  
+  "dopes_seamless_loading_screen.config.display": "Отображение",
+  "dopes_seamless_loading_screen.config.display.blurStrength": "Сила размытия",
+  "dopes_seamless_loading_screen.config.display.blurStrength.description": "Насколько сильно размыт скриншот на экране загрузки. 0 = размытие выключено, чем больше — тем сильнее (макс. 64). Размытие строится ступенями, поэтому анимация получается плавной.",
+  "dopes_seamless_loading_screen.config.display.dim": "Затемнение фона (%)",
+  "dopes_seamless_loading_screen.config.display.dim.description": "Процент затемнения поверх фонового изображения. 0 = без затемнения. Применяется сразу целиком, плавно не появляется.",
+  "dopes_seamless_loading_screen.config.display.fadeDuration": "Время fade анимации (мс)",
+  "dopes_seamless_loading_screen.config.display.fadeDuration.description": "Длительность затухания скриншота после загрузки мира: за это время картинка исчезает и проявляется мир. 0 = мгновенно.",
+  "dopes_seamless_loading_screen.config.display.blurSpeed": "Скорость анимации размытия (%)",
+  "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Какую часть анимации затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации (размытие остаётся до конца затухания). В слайд-шоу анимация размытия не работает: размытие держится до конца затухания.",
+  "dopes_seamless_loading_screen.config.display.imageSize": "Разрешение картинки (%)",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Разрешение, в котором скриншот отрисовывается на экране загрузки: 100% — как есть, 50% — вдвое меньше. Картинка всегда растягивается на весь экран, меньшее значение только снижает качество и расход памяти.",
+  
+  "dopes_seamless_loading_screen.config.timing": "Тайминги",
+  "dopes_seamless_loading_screen.config.timing.minShowTime": "Мин. время показа (мс)",
+  "dopes_seamless_loading_screen.config.timing.minShowTime.description": "Держать экран загрузки видимым минимум столько времени, чтобы скриншот успел показаться. 0 = выключено.",
+  "dopes_seamless_loading_screen.config.timing.maxShowTime": "Макс. время показа (мс)",
+  "dopes_seamless_loading_screen.config.timing.maxShowTime.description": "Не держать экран загрузки дольше этого времени, даже если чанки всё ещё грузятся. 0 = без ограничения.",
+  
+  "dopes_seamless_loading_screen.config.slideshow": "Слайд-шоу",
+  "dopes_seamless_loading_screen.config.slideshow.speed": "Скорость смены слайд-шоу (мс)",
+  "dopes_seamless_loading_screen.config.slideshow.speed.description": "Как часто сменяются картинки в слайд-шоу. 0 = слайд-шоу отключено (одна случайная статичная картинка). Если в папке лежит всего один файл, смена слайдов тоже отключена.",
+  "dopes_seamless_loading_screen.config.slideshow.fadeSpeed": "Скорость анимации слайд-шоу (мс)",
+  "dopes_seamless_loading_screen.config.slideshow.fadeSpeed.description": "Длительность fade перехода между картинками слайд-шоу. 0 = без анимации.",
+  "dopes_seamless_loading_screen.config.slideshow.folder": "Папка слайд-шоу",
+  "dopes_seamless_loading_screen.config.slideshow.openFolder": "Открыть папку",
+  "dopes_seamless_loading_screen.config.slideshow.openFolder.description": "Открывает папку, куда можно закинуть свои PNG изображения для слайд-шоу.",
+  
+  "dopes_seamless_loading_screen.counter": "Чанки: %s / %s"
+}

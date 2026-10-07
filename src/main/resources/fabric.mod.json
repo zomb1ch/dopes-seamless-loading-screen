@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "dopes_seamless_loading_screen",
+  "version": "${mod_version}",
+  "name": "dope's Seamless Loading Screen",
+  "description": "Takes a screenshot of the game when you leave a world or server, and displays it when you rejoin it. With slideshow backgrounds, chunk counter and smooth fade animations.",
+  "authors": [
+    "dope_ee"
+  ],
+  "license": "MIT",
+  "icon": "assets/dopes_seamless_loading_screen/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dopes.seamlessloading.DopesSeamlessLoadingScreen"
+    ],
+    "modmenu": [
+      "dopes.seamlessloading.config.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "dopes_seamless_loading_screen.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "fabric": "*",
+    "minecraft": "=1.21.11",
+    "yet_another_config_lib_v3": ">=3.8.0"
+  },
+  "recommends": {
+    "modmenu": ">=17.0.0"
+  }
+}

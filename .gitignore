@@ -1,0 +1,18 @@
+# Gradle
+.gradle/
+build/
+
+# Loom dev environment
+run/
+
+# Logs
+*.log
+test_result.txt
+
+# Third-party reference material: decompiled original mod and Minecraft sources
+reference/
+
+# Third-party / duplicate files that are not part of the project sources
+/*.jar
+/placeholders/
+/icon.png

@@ -1,0 +1,11 @@
+# Normalize line endings in the repository, so the project works the same on Windows and Linux
+* text=auto eol=lf
+
+# Windows scripts still need CRLF
+*.bat text eol=crlf
+
+# Binary files must never be touched
+*.png binary
+*.jar binary
+*.zip binary
+*.gz binary

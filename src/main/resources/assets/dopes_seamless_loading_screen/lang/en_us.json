@@ -1,0 +1,49 @@
+{
+  "dopes_seamless_loading_screen.config.title": "dope's Seamless Loading Screen Settings",
+  "dopes_seamless_loading_screen.config.page": "Settings",
+
+  "modmenu.nameTranslation.dopes_seamless_loading_screen": "dope's Seamless Loading Screen",
+  "modmenu.summaryTranslation.dopes_seamless_loading_screen": "Takes a screenshot when you leave a world or server and shows it again when you rejoin.",
+  "modmenu.descriptionTranslation.dopes_seamless_loading_screen": "Takes a screenshot of the game when you leave a world or server, and displays it on the loading screen when you rejoin it. With slideshow backgrounds, chunk counter and smooth fade animations.",
+
+  "dopes_seamless_loading_screen.config.general": "General",
+  "dopes_seamless_loading_screen.config.general.enabled": "Mod Enabled",
+  "dopes_seamless_loading_screen.config.general.enabled.description": "Enable or disable the entire mod.",
+  "dopes_seamless_loading_screen.config.general.slideshow": "Slideshow (no screenshot)",
+  "dopes_seamless_loading_screen.config.general.slideshow.description": "Show a slideshow instead of a static background when the world has no screenshot yet.",
+  "dopes_seamless_loading_screen.config.general.waitChunks": "Wait for All Chunks",
+  "dopes_seamless_loading_screen.config.general.waitChunks.description": "Wait for all chunks to fully load before starting the fade animation.",
+  "dopes_seamless_loading_screen.config.general.chunkCounter": "Chunk Counter",
+  "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Show chunk loading progress at the top of the screen (loaded / total).",
+  "dopes_seamless_loading_screen.config.general.serverScreenshots": "Screenshots on Servers",
+  "dopes_seamless_loading_screen.config.general.serverScreenshots.description": "Take and show screenshots while playing on servers. When disabled, no screenshots are taken or shown for servers; the loading screen falls back to the slideshow (if enabled). The chunk counter keeps working.",
+
+  "dopes_seamless_loading_screen.config.display": "Display",
+  "dopes_seamless_loading_screen.config.display.blurStrength": "Blur Strength",
+  "dopes_seamless_loading_screen.config.display.blurStrength.description": "How strongly the screenshot is blurred while the loading screen is up. 0 = no blur, higher = stronger (max 64). The blur is built in steps, so the animation looks smooth.",
+  "dopes_seamless_loading_screen.config.display.dim": "Background Dim (%)",
+  "dopes_seamless_loading_screen.config.display.dim.description": "Percentage of darkening over the background image. 0 = no dim. It is always fully applied, it does not fade in.",
+  "dopes_seamless_loading_screen.config.display.fadeDuration": "Fade Duration (ms)",
+  "dopes_seamless_loading_screen.config.display.fadeDuration.description": "How long the screenshot takes to fade out once the world is ready: the image disappears and the world shows through. 0 = instant.",
+  "dopes_seamless_loading_screen.config.display.blurSpeed": "Blur Animation Speed (%)",
+  "dopes_seamless_loading_screen.config.display.blurSpeed.description": "How much of the fade animation the blur takes to disappear. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation (the blur stays until the end of the fade). The slideshow never animates its blur: the blur stays until the end of the fade.",
+  "dopes_seamless_loading_screen.config.display.imageSize": "Image Resolution (%)",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolution the screenshot is rendered at on the loading screen: 100% = as is, 50% = half. The image is always stretched over the whole screen, a lower value only reduces quality and memory usage.",
+
+  "dopes_seamless_loading_screen.config.timing": "Timing",
+  "dopes_seamless_loading_screen.config.timing.minShowTime": "Min Show Time (ms)",
+  "dopes_seamless_loading_screen.config.timing.minShowTime.description": "Keep the loading screen visible for at least this long so the screenshot can be seen. 0 = disabled.",
+  "dopes_seamless_loading_screen.config.timing.maxShowTime": "Max Show Time (ms)",
+  "dopes_seamless_loading_screen.config.timing.maxShowTime.description": "Never keep the loading screen open longer than this, even if the chunks are still loading. 0 = no limit.",
+
+  "dopes_seamless_loading_screen.config.slideshow": "Slideshow",
+  "dopes_seamless_loading_screen.config.slideshow.speed": "Slideshow Speed (ms)",
+  "dopes_seamless_loading_screen.config.slideshow.speed.description": "How often slideshow images change. 0 = slideshow disabled (one random static image). A folder with a single file also disables slide switching.",
+  "dopes_seamless_loading_screen.config.slideshow.fadeSpeed": "Slideshow Fade Speed (ms)",
+  "dopes_seamless_loading_screen.config.slideshow.fadeSpeed.description": "Duration of the fade transition between slideshow images. 0 = instant switch.",
+  "dopes_seamless_loading_screen.config.slideshow.folder": "Slideshow Folder",
+  "dopes_seamless_loading_screen.config.slideshow.openFolder": "Open Folder",
+  "dopes_seamless_loading_screen.config.slideshow.openFolder.description": "Opens the folder where you can put your own PNG images for the slideshow.",
+
+  "dopes_seamless_loading_screen.counter": "Chunks: %s / %s"
+}
