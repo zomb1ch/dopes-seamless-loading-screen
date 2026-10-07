@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ClientCommonPacketListenerMixin",
+    "ClientPacketListenerMixin",
     "ConnectScreenAccessor",
     "ConnectScreenMixin",
     "CreateWorldScreenMixin",

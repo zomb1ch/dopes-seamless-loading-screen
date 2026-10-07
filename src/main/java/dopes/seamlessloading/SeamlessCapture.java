@@ -97,10 +97,33 @@ public final class SeamlessCapture {
 
 		Path target = resolveTargetPath();
 		if (target != null) {
+			rememberServerSpot();
 			capture(target);
 		}
 
 		runContinuation();
+	}
+
+	/**
+	 * Remembers where the player was, so the screenshot is only shown again when the server puts
+	 * them back at (roughly) the same spot instead of somewhere else (a lobby, another world, ...).
+	 */
+	private static void rememberServerSpot() {
+		if (!SeamlessConfigManager.get().serverPositionCheck) {
+			return;
+		}
+
+		Minecraft minecraft = Minecraft.getInstance();
+		ServerData serverData = minecraft.getCurrentServer();
+		if (serverData == null || serverData.ip == null || serverData.ip.isBlank() || serverData.isLan()) {
+			return;
+		}
+		if (minecraft.player == null || minecraft.level == null) {
+			return;
+		}
+
+		SeamlessServerPositions.remember(serverData.ip, minecraft.level.dimension().identifier().toString(),
+				minecraft.player.getX(), minecraft.player.getY(), minecraft.player.getZ());
 	}
 
 	private static void runContinuation() {

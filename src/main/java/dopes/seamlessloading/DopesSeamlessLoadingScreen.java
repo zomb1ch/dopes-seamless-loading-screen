@@ -30,6 +30,7 @@ public class DopesSeamlessLoadingScreen implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		SeamlessConfigManager.load();
+		SeamlessServerPositions.load();
 
 		try {
 			Files.createDirectories(getScreenshotsDirectory().resolve(SeamlessScreenshots.SINGLEPLAYER_DIR));

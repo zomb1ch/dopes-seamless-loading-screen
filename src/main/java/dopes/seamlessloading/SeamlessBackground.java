@@ -114,6 +114,38 @@ public final class SeamlessBackground {
 		return SeamlessTexture.loadResource((Identifier) slide, config.blurStrength, config.imageSize);
 	}
 
+	/**
+	 * Cross fades to the given screenshot, keeping whatever is shown right now as the starting
+	 * point. Used when a server turns out to be the same place as last time, so the slideshow melts
+	 * into the actual screenshot instead of being replaced in a single frame.
+	 */
+	public static void crossFadeTo(Path screenshot) {
+		SeamlessConfig config = SeamlessConfigManager.get();
+		SeamlessTexture loaded = screenshot == null ? null
+				: SeamlessTexture.load(screenshot, config.blurStrength, config.imageSize);
+		if (loaded == null) {
+			return;
+		}
+
+		// Stop the slideshow so it does not switch again while (and after) we cross fade.
+		slideshow = false;
+		slides = List.of();
+
+		if (current == null) {
+			current = loaded;
+			lastSwitch = Util.getMillis();
+			return;
+		}
+
+		if (incoming != null) {
+			incoming.close();
+		}
+
+		incoming = loaded;
+		incomingStart = Util.getMillis();
+		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Cross fading to the screenshot of {}", screenshot);
+	}
+
 	public static void clear() {
 		reset();
 	}
@@ -156,6 +188,7 @@ public final class SeamlessBackground {
 		}
 
 		SeamlessConfig config = SeamlessConfigManager.get();
+		updateCrossfade(config, now);
 		updateSlideshow(config, now);
 
 		drawBackground(graphics, screenWidth, screenHeight, 1.0F, blurAmount(config, 1.0F),
@@ -217,14 +250,8 @@ public final class SeamlessBackground {
 			return;
 		}
 
+		// A cross fade (slideshow or {@link #crossFadeTo(Path)}) is already running.
 		if (incoming != null) {
-			if (now - incomingStart >= Math.max(1, config.slideshowFadeSpeed)) {
-				current.close();
-				current = incoming;
-				incoming = null;
-				lastSwitch = now;
-			}
-
 			return;
 		}
 
@@ -241,6 +268,16 @@ public final class SeamlessBackground {
 
 		incoming = next;
 		incomingStart = now;
+	}
+
+	/** Finishes a running cross fade, whichever way it was started. */
+	private static void updateCrossfade(SeamlessConfig config, long now) {
+		if (incoming != null && now - incomingStart >= Math.max(1, config.slideshowFadeSpeed)) {
+			current.close();
+			current = incoming;
+			incoming = null;
+			lastSwitch = now;
+		}
 	}
 
 	private static float crossfadeProgress(SeamlessConfig config, long now) {
@@ -275,6 +312,7 @@ public final class SeamlessBackground {
 
 		SeamlessConfig config = SeamlessConfigManager.get();
 		long now = Util.getMillis();
+		updateCrossfade(config, now);
 		updateSlideshow(config, now);
 
 		drawBackground(graphics, screenWidth, screenHeight, alpha, blurAmount(config, alpha),
@@ -293,6 +331,7 @@ public final class SeamlessBackground {
 
 		SeamlessConfig config = SeamlessConfigManager.get();
 		long now = Util.getMillis();
+		updateCrossfade(config, now);
 		updateSlideshow(config, now);
 
 		float blur = config.blurStrength > 0 && current.hasBlur() ? 1.0F : 0.0F;

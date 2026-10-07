@@ -17,6 +17,8 @@
   "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Показывать сверху экрана прогресс загрузки чанков (сколько прогружено / всего).",
   "dopes_seamless_loading_screen.config.general.serverScreenshots": "Скриншоты для серверов",
   "dopes_seamless_loading_screen.config.general.serverScreenshots.description": "Делать и показывать скриншоты при игре на серверах. Если выключено, для серверов скриншоты не создаются и не показываются, а на экране загрузки вместо них будет слайд-шоу (если оно включено). Счётчик чанков продолжает работать.",
+  "dopes_seamless_loading_screen.config.general.serverPositionCheck": "Проверка места на сервере",
+  "dopes_seamless_loading_screen.config.general.serverPositionCheck.description": "Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — вместо скриншота показывается слайд-шоу, чтобы скриншот не вводил в заблуждение. Требует включённых «Скриншотов для серверов».",
   "dopes_seamless_loading_screen.config.general.transition": "Вспомогательные экраны переходов",
   "dopes_seamless_loading_screen.config.general.transition.description": "Показывать скриншот (или слайд-шоу) поверх перехода при входе в мир или на сервер и при выходе из них. Экран плавно появляется, запускает загрузку и держится, пока не появится экран загрузки (скрывая промежуточные экраны), после чего плавно исчезает. Размытие и затемнение на нём такие же, как на экране загрузки, но статичные.",
   "dopes_seamless_loading_screen.config.general.transitionFade": "Время fade анимации переходов (мс)",

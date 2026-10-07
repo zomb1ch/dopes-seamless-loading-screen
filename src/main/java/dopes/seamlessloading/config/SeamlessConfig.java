@@ -9,6 +9,13 @@ public class SeamlessConfig {
 	/** Whether screenshots are taken and shown for multiplayer servers. */
 	public boolean screenshotsOnServers = false;
 
+	/**
+	 * Only show the server screenshot when you rejoin at (roughly) the same spot as last time;
+	 * otherwise the slideshow is shown. Servers that drop you into a lobby on every join would
+	 * otherwise show a misleading screenshot.
+	 */
+	public boolean serverPositionCheck = true;
+
 	/** Show an auxiliary screenshot screen over the transitions into and out of a world. */
 	public boolean transitionScreens = true;
 

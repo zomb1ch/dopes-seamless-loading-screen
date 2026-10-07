@@ -140,7 +140,17 @@ public final class SeamlessCurtain {
 		Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
 				? SeamlessScreenshots.server(serverData.ip)
 				: null;
-		prepare(screenshot);
+
+		if (!SeamlessConfigManager.get().serverPositionCheck) {
+			// No position check: show the screenshot right away (or the slideshow when there is none).
+			prepare(screenshot);
+			return;
+		}
+
+		// Start with the slideshow: whether the screenshot fits is only known once the server tells
+		// us where the player actually is (see SeamlessSession#onServerSpotKnown).
+		prepare(null);
+		SeamlessSession.setServer(serverData.ip, screenshot);
 	}
 
 	/**

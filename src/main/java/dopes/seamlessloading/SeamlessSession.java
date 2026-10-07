@@ -16,6 +16,9 @@ public final class SeamlessSession {
 	private static boolean active;
 	private static long startMillis;
 	private static String singleplayerWorldId;
+	/** Server being joined and the screenshot to show when we end up at the same spot again. */
+	private static String serverAddress;
+	private static Path serverScreenshot;
 
 	/** Chunk count seen on the previous check and when it last changed, used to detect "loading done". */
 	private static int lastChunkCount = -2;
@@ -79,7 +82,44 @@ public final class SeamlessSession {
 
 	public static void end() {
 		active = false;
+		serverAddress = null;
+		serverScreenshot = null;
 		SeamlessBackground.clear();
+	}
+
+	/** Remembers the server being joined and its screenshot, for the "same place" check. */
+	public static void setServer(String address, Path screenshot) {
+		serverAddress = address;
+		serverScreenshot = screenshot;
+	}
+
+	/**
+	 * Called once the server has told us where the player actually is. When that is the same place
+	 * as the last time, the screenshot is cross faded in; otherwise the slideshow stays.
+	 */
+	public static void onServerSpotKnown() {
+		if (serverAddress == null || serverScreenshot == null || !active) {
+			return;
+		}
+
+		Minecraft minecraft = Minecraft.getInstance();
+		if (minecraft.player == null || minecraft.level == null) {
+			return;
+		}
+
+		String address = serverAddress;
+		Path screenshot = serverScreenshot;
+		serverAddress = null;
+		serverScreenshot = null;
+
+		boolean same = SeamlessServerPositions.matches(address,
+				minecraft.level.dimension().identifier().toString(),
+				minecraft.player.getX(), minecraft.player.getY(), minecraft.player.getZ());
+		if (same) {
+			SeamlessBackground.crossFadeTo(screenshot);
+		} else {
+			DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Joined {} somewhere else, keeping the slideshow", address);
+		}
 	}
 
 	/**
