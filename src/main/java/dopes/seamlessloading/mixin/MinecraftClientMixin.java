@@ -5,6 +5,7 @@ import dopes.seamlessloading.SeamlessCurtain;
 import dopes.seamlessloading.SeamlessScreenshots;
 import dopes.seamlessloading.SeamlessSession;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.WorldStem;
 import net.minecraft.server.packs.repository.PackRepository;
@@ -20,10 +21,18 @@ public abstract class MinecraftClientMixin {
 	/**
 	 * Remembers which singleplayer world is being loaded and shows the auxiliary transition screen.
 	 * The world is only really loaded once that screen has fully faded in.
+	 *
+	 * <p>When the world was picked from the world list the overlay has already been started (see
+	 * {@code WorldOpenFlowsMixin}), and the load simply continues.
 	 */
 	@Inject(method = "doWorldLoad", at = @At("HEAD"), cancellable = true)
 	private void dopes$beginSingleplayerSession(LevelStorageSource.LevelStorageAccess levelStorageAccess,
 			PackRepository packRepository, WorldStem worldStem, boolean bl, CallbackInfo ci) {
+		// Overlay already running (picked from the world list, or this is the deferred action): load.
+		if (SeamlessCurtain.isActive()) {
+			return;
+		}
+
 		// The deferred action re-enters this method, and the session is already set up by then.
 		if (!SeamlessCurtain.isReplaying()) {
 			String worldId = levelStorageAccess.getLevelId();
@@ -33,6 +42,17 @@ public abstract class MinecraftClientMixin {
 
 		if (SeamlessCurtain.beginEnter("entering the world",
 				() -> Minecraft.getInstance().doWorldLoad(levelStorageAccess, packRepository, worldStem, bl))) {
+			ci.cancel();
+		}
+	}
+
+	/**
+	 * Skips the vanilla "Reading world data" / "Loading resources" / "Saving world" screens while the
+	 * transition overlay is up, so only the screenshot is visible and nothing flashes underneath it.
+	 */
+	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+	private void dopes$hideIntermediateScreens(Screen screen, CallbackInfo ci) {
+		if (SeamlessCurtain.shouldHideScreen(screen)) {
 			ci.cancel();
 		}
 	}

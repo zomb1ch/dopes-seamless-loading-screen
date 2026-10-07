@@ -4,8 +4,10 @@ import dopes.seamlessloading.config.SeamlessConfig;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.screens.DisconnectedScreen;
+import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.GenericMessageScreen;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
+import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
@@ -61,6 +63,8 @@ public final class SeamlessCurtain {
 	private static boolean endSessionAfterFade;
 	private static boolean running;
 	private static String label = "";
+	/** Screen that was current when the enter overlay started; used to tell loading apart from errors. */
+	private static Screen originScreen;
 
 	private SeamlessCurtain() {
 	}
@@ -90,9 +94,37 @@ public final class SeamlessCurtain {
 			return false;
 		}
 
+		originScreen = Minecraft.getInstance().screen;
 		waitForLoadingScreen = true;
 		endSessionAfterFade = false;
 		start(Phase.FADE_IN, source, action);
+		return true;
+	}
+
+	/**
+	 * Starts the overlay as soon as an existing world is picked, without deferring anything: the
+	 * world keeps loading on its own. This is what makes the overlay cover the vanilla
+	 * "Reading world data" / "Loading resources" screens, which would otherwise flash before the
+	 * loading screen shows up (see {@link #shouldHideScreen(Screen)}).
+	 *
+	 * @param worldId folder name of the singleplayer world being opened
+	 * @return {@code true} if the overlay was started
+	 */
+	public static boolean armEnter(String source, String worldId) {
+		if (phase != Phase.IDLE || running || !enabled()) {
+			return false;
+		}
+
+		SeamlessSession.setSingleplayerWorldId(worldId);
+		SeamlessSession.begin(SeamlessScreenshots.singleplayer(worldId));
+		if (!SeamlessBackground.isActive()) {
+			return false;
+		}
+
+		originScreen = Minecraft.getInstance().screen;
+		waitForLoadingScreen = true;
+		endSessionAfterFade = false;
+		start(Phase.FADE_IN, source, null);
 		return true;
 	}
 
@@ -112,6 +144,7 @@ public final class SeamlessCurtain {
 			return false;
 		}
 
+		originScreen = Minecraft.getInstance().screen;
 		waitForLoadingScreen = false;
 		endSessionAfterFade = true;
 		start(Phase.WAIT_FOR_CAPTURE, source, action);
@@ -161,18 +194,28 @@ public final class SeamlessCurtain {
 				}
 			}
 			case FADE_IN -> {
-				if (mayRunActions && now - phaseStartMillis >= fadeDuration()) {
-					runAction();
-					start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
+				if (!isLoadingScreen(minecraft.screen)) {
+					// Something unexpected appeared (an error, a confirmation, ...): get out of the way.
+					endSessionAfterFade = true;
+					start(Phase.FADE_OUT, label, null);
+				} else if (now - phaseStartMillis >= fadeDuration()) {
+					if (action == null) {
+						// Nothing was deferred (the world loads on its own), so the phase can advance
+						// even from the loading screen tick, where deferred actions must not run.
+						start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
+					} else if (mayRunActions) {
+						runAction();
+						start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
+					}
 				}
 			}
 			case WAIT_FOR_LOADING_SCREEN -> {
 				Screen screen = minecraft.screen;
 				if (screen instanceof LevelLoadingScreen) {
 					start(Phase.FADE_OUT, label, null);
-				} else if (screen instanceof DisconnectedScreen
+				} else if (!isLoadingScreen(screen)
 						|| now - phaseStartMillis >= WAIT_FOR_SCREEN_TIMEOUT_MILLIS) {
-					// The world never showed up (failed connection, cancelled, ...): step aside.
+					// The world never showed up (failed connection, cancelled, error, ...): step aside.
 					endSessionAfterFade = true;
 					start(Phase.FADE_OUT, label, null);
 				}
@@ -234,6 +277,28 @@ public final class SeamlessCurtain {
 		return config.modEnabled && config.transitionScreens;
 	}
 
+	/**
+	 * {@code true} while a vanilla "loading" message screen must not be shown: the overlay covers it
+	 * instead, so only the screenshot stays visible during the whole transition.
+	 */
+	public static boolean shouldHideScreen(Screen screen) {
+		if (screen == null || phase == Phase.IDLE || phase == Phase.WAIT_FOR_CAPTURE) {
+			return false;
+		}
+
+		return screen instanceof GenericMessageScreen || screen instanceof ProgressScreen;
+	}
+
+	/** Screens that legitimately appear while the world is still being loaded. */
+	private static boolean isLoadingScreen(Screen screen) {
+		return screen == null
+				|| screen == originScreen
+				|| screen instanceof LevelLoadingScreen
+				|| screen instanceof GenericMessageScreen
+				|| screen instanceof ProgressScreen
+				|| screen instanceof ConnectScreen;
+	}
+
 	/** Runs the action the caller gave up on, guarding against the mixins intercepting it again. */
 	private static void runAction() {
 		Runnable run = action;
@@ -256,6 +321,7 @@ public final class SeamlessCurtain {
 	private static void finish() {
 		phase = Phase.IDLE;
 		action = null;
+		originScreen = null;
 
 		if (endSessionAfterFade) {
 			SeamlessSession.end();

@@ -11,7 +11,8 @@
     "LevelLoadingScreenMixin",
     "LevelLoadTrackerMixin",
     "MinecraftClientMixin",
-    "ScreenMixin"
+    "ScreenMixin",
+    "WorldOpenFlowsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -13,7 +13,7 @@ public class SeamlessConfig {
 	public boolean transitionScreens = true;
 
 	/** Fade duration of those screens, in milliseconds. The same for entering and leaving. */
-	public int transitionFadeDuration = 1500;
+	public int transitionFadeDuration = 800;
 
 	public int blurStrength = 16;
 	public int backgroundDim = 35;
