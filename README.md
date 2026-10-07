@@ -35,8 +35,10 @@ generic "Loading terrain..." screen you see the place you are returning to.
   never fade into an empty world. It gives up after a short grace period, which keeps void spawns
   and registration lobbies from hanging.
 - **Min / max show time.** Never flashes by too quickly, never hangs forever.
-- **Server screenshots can be turned off** (off by default), for servers where you always spawn in
-  a lobby and screenshots make no sense.
+- **Own loading screen.** The vanilla text, chunk map and progress bar are replaced by the mod's own
+  animated text/icon and a smooth progress bar that fills up while the world and its chunks load.
+- **Server position check.** The server screenshot is only shown when you rejoin at (roughly) the
+  same spot; if the server drops you into a lobby, the slideshow is shown instead.
 - **Everything is configurable** through Mod Menu (YetAnotherConfigLib), with a Russian and an
   English localization.
 
@@ -134,6 +136,8 @@ terrain…» вы видите то место, куда возвращаете�
   проявлялись в пустом мире. Если чанки так и не приходят (спавн в пустоте, регистрация, лобби),
   ожидание корректно заканчивается по таймауту и не зависает.
 - **Мин. и макс. время показа.** Экран не мелькнёт слишком быстро и не залипнет навсегда.
+- **Своё оформление экрана загрузки.** Ванильные текст, карта чанков и шкала заменены собственными
+  анимированными текстом и иконкой и плавной шкалой, которая заполняется во время загрузки мира и чанков.
 - **Проверка места на сервере.** Скриншот показывается только если вы вернулись примерно на то же место;
   если сервер забросил вас в лобби — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.
 - **Всё настраивается** через Mod Menu (YetAnotherConfigLib), есть русская и английская локализация.
