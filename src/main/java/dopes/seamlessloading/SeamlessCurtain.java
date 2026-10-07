@@ -135,14 +135,10 @@ public final class SeamlessCurtain {
 
 	/** Prepares the overlay for a server that is about to be joined. */
 	public static void prepareServer(ServerData serverData) {
-		// With server screenshots disabled the session still runs, so the slideshow and the chunk
-		// counter keep working; only the screenshot is skipped (both reading and writing it).
-		Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
-				? SeamlessScreenshots.server(serverData.ip)
-				: null;
+		Path screenshot = SeamlessScreenshots.server(serverData.ip);
 
 		if (!SeamlessConfigManager.get().serverPositionCheck) {
-			// No position check: show the screenshot right away (or the slideshow when there is none).
+			// No position check: show the screenshot right away.
 			prepare(screenshot);
 			return;
 		}

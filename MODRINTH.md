@@ -76,8 +76,7 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 | Setting | Default | What it does |
 |---|---|---|
 | Mod Enabled | on | Turns the whole mod on or off. |
-| Screenshots on Servers | off | Take and show screenshots while playing on servers. When off, servers fall back to the slideshow and the chunk counter still works. A fresh screenshot is always captured when leaving a server, so the exit transition screen has something to show. |
-| Server Position Check | on | Remember where you were when you left a server, and only show the screenshot again when you rejoin at (roughly) the same spot. If you end up somewhere else (a lobby, another world, ...) the slideshow is shown instead, so the screenshot is never misleading. Requires "Screenshots on Servers". |
+| Server Position Check | on | Remember where you were when you left a server, and only show the screenshot again when you rejoin at (roughly) the same spot. If you end up somewhere else (a lobby, another world, ...) the slideshow is shown instead, so the screenshot is never misleading. |
 | Transition Screens | on | Show the screenshot (or slideshow) over the transition when entering a world or server and when leaving them. The screen fades in, starts the load and stays on top until the loading screen appears (hiding the screens in between), then fades out. Its blur and dim match the loading screen, but are static. |
 | Transition Fade Duration | 800 ms | How long the transition screen takes to appear and to disappear. The same for entering and leaving. 0 = no animation. |
 | Slideshow (no screenshot) | on | Show the slideshow when a world has no screenshot yet. |
@@ -148,8 +147,8 @@ modify and include in modpacks.
   в пустом мире. Спавн в пустоте, регистрация и лобби определяются и отпускаются по таймауту —
   зависания нет.
 - **Мин. и макс. время показа.** Экран не мелькнёт слишком быстро и не залипнет навсегда.
-- **Скриншоты для серверов можно отключить** (по умолчанию выключено) — для серверов, где вы
-  всегда спавнитесь в лобби. Слайд-шоу и счётчик чанков продолжают работать.
+- **Проверка места на сервере.** Скриншот показывается только если вы вернулись примерно на то же место;
+  если сервер забросил вас в лобби — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.
 - **Всё настраивается** через Mod Menu, есть русский и английский интерфейс.
 
 ### Требования
@@ -186,8 +185,7 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 | Настройка | По умолчанию | Что делает |
 |---|---|---|
 | Мод включён | вкл | Включает или отключает весь мод. |
-| Скриншоты для серверов | выкл | Делать и показывать скриншоты на серверах. Если выключено, работает слайд-шоу, а счётчик чанков продолжает работать. При выходе с сервера скриншот делается всегда — чтобы вспомогательному экрану было что показать. |
-| Проверка места на сервере | вкл | Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение. Требует «Скриншоты для серверов». |
+| Проверка места на сервере | вкл | Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение. |
 | Вспомогательные экраны переходов | вкл | Показывать скриншот (или слайд-шоу) поверх перехода при входе в мир или на сервер и при выходе из них. Экран плавно появляется, запускает загрузку и держится, пока не появится экран загрузки (скрывая промежуточные экраны), после чего плавно исчезает. Размытие и затемнение такие же, как на экране загрузки, но статичные. |
 | Время fade анимации переходов | 800 мс | Длительность появления и исчезновения вспомогательного экрана. Одна и та же для входа и выхода. 0 = без анимации. |
 | Слайд-шоу, если нет скриншота | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |

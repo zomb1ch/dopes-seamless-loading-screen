@@ -2,7 +2,6 @@ package dopes.seamlessloading;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
-import dopes.seamlessloading.config.SeamlessConfig;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -50,7 +49,7 @@ public final class SeamlessCapture {
 		}
 
 		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.level == null || !shouldCapture(minecraft)) {
+		if (minecraft.level == null) {
 			return false;
 		}
 
@@ -59,20 +58,6 @@ public final class SeamlessCapture {
 		writtenPath = null;
 		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Taking a screenshot before {}", source);
 		return true;
-	}
-
-	/**
-	 * Whether the current frame should be captured. The auxiliary exit screen always needs a fresh
-	 * screenshot, even on servers with server screenshots turned off, so that option only applies
-	 * when the auxiliary screens are disabled.
-	 */
-	private static boolean shouldCapture(Minecraft minecraft) {
-		SeamlessConfig config = SeamlessConfigManager.get();
-		if (config.transitionScreens) {
-			return true;
-		}
-
-		return config.screenshotsOnServers || minecraft.getSingleplayerServer() != null;
 	}
 
 	/** Picks up the path of the screenshot written since the last call, or {@code null}. */

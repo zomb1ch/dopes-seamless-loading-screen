@@ -6,9 +6,6 @@ public class SeamlessConfig {
 	public boolean waitForAllChunks = true;
 	public boolean chunkCounter = false;
 
-	/** Whether screenshots are taken and shown for multiplayer servers. */
-	public boolean screenshotsOnServers = false;
-
 	/**
 	 * Only show the server screenshot when you rejoin at (roughly) the same spot as last time;
 	 * otherwise the slideshow is shown. Servers that drop you into a lobby on every join would

@@ -52,9 +52,6 @@ public final class SeamlessConfigScreen {
 		Option<Boolean> chunkCounter = bool("general.chunkCounter", defaults.chunkCounter,
 				() -> config.chunkCounter, value -> config.chunkCounter = value);
 
-		Option<Boolean> screenshotsOnServers = bool("general.serverScreenshots", defaults.screenshotsOnServers,
-				() -> config.screenshotsOnServers, value -> config.screenshotsOnServers = value);
-
 		Option<Boolean> serverPositionCheck = bool("general.serverPositionCheck", defaults.serverPositionCheck,
 				() -> config.serverPositionCheck, value -> config.serverPositionCheck = value);
 
@@ -104,7 +101,7 @@ public final class SeamlessConfigScreen {
 				// category. The now pointless tab buttons are hidden by hideTabs below.
 				.category(ConfigCategory.createBuilder()
 						.name(name("page"))
-						.group(group("general", enabled, screenshotsOnServers, serverPositionCheck, slideshowIfNoScreenshot,
+						.group(group("general", enabled, serverPositionCheck, slideshowIfNoScreenshot,
 								waitForAllChunks, chunkCounter))
 						.group(group("display", transitionScreens, transitionFadeDuration, blurStrength, blurSpeed,
 								backgroundDim, fadeDuration, imageSize))
