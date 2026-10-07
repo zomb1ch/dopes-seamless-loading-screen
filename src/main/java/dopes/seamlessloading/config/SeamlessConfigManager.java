@@ -86,6 +86,7 @@ public final class SeamlessConfigManager {
 		config.slideshowSpeed = clamp(config.slideshowSpeed, 0, 600000);
 		config.slideshowFadeSpeed = clamp(config.slideshowFadeSpeed, 0, 60000);
 		config.blurSpeedPercent = clamp(config.blurSpeedPercent, 0, 100);
+		config.transitionFadeDuration = clamp(config.transitionFadeDuration, 0, 10000);
 	}
 
 	private static int clamp(int value, int min, int max) {

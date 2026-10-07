@@ -5,11 +5,13 @@
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ClientCommonPacketListenerMixin",
+    "ConnectScreenAccessor",
     "ConnectScreenMixin",
     "GameRendererMixin",
     "LevelLoadingScreenMixin",
     "LevelLoadTrackerMixin",
-    "MinecraftClientMixin"
+    "MinecraftClientMixin",
+    "ScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -9,6 +9,12 @@ public class SeamlessConfig {
 	/** Whether screenshots are taken and shown for multiplayer servers. */
 	public boolean screenshotsOnServers = false;
 
+	/** Show an auxiliary screenshot screen over the transitions into and out of a world. */
+	public boolean transitionScreens = true;
+
+	/** Fade duration of those screens, in milliseconds. The same for entering and leaving. */
+	public int transitionFadeDuration = 1500;
+
 	public int blurStrength = 16;
 	public int backgroundDim = 35;
 	public int fadeDuration = 800;

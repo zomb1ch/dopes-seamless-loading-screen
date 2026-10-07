@@ -1,5 +1,6 @@
 package dopes.seamlessloading.mixin;
 
+import dopes.seamlessloading.SeamlessCurtain;
 import dopes.seamlessloading.SeamlessScreenshots;
 import dopes.seamlessloading.SeamlessSession;
 import dopes.seamlessloading.config.SeamlessConfigManager;
@@ -28,11 +29,20 @@ public abstract class ConnectScreenMixin {
 	)
 	private void dopes$beginServerSession(Minecraft minecraft, ServerAddress serverAddress, ServerData serverData,
 			TransferState transferState, CallbackInfo ci) {
-		// With server screenshots disabled the session still runs, so the slideshow and the chunk
-		// counter keep working; only the screenshot is skipped (both reading and writing it).
-		Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
-				? SeamlessScreenshots.server(serverData.ip)
-				: null;
-		SeamlessSession.begin(screenshot);
+		// The deferred action re-enters this method, and the session is already set up by then.
+		if (!SeamlessCurtain.isReplaying()) {
+			// With server screenshots disabled the session still runs, so the slideshow and the chunk
+			// counter keep working; only the screenshot is skipped (both reading and writing it).
+			Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
+					? SeamlessScreenshots.server(serverData.ip)
+					: null;
+			SeamlessSession.begin(screenshot);
+		}
+
+		if (SeamlessCurtain.beginEnter("connecting to the server",
+				() -> ((ConnectScreenAccessor) (Object) this)
+						.seamless$connect(minecraft, serverAddress, serverData, transferState))) {
+			ci.cancel();
+		}
 	}
 }

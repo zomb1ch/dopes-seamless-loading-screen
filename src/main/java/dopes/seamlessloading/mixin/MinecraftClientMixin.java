@@ -1,6 +1,7 @@
 package dopes.seamlessloading.mixin;
 
 import dopes.seamlessloading.SeamlessCapture;
+import dopes.seamlessloading.SeamlessCurtain;
 import dopes.seamlessloading.SeamlessScreenshots;
 import dopes.seamlessloading.SeamlessSession;
 import net.minecraft.client.Minecraft;
@@ -16,19 +17,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Minecraft.class)
 public abstract class MinecraftClientMixin {
 
-	/** Remembers which singleplayer world is being loaded, so the right screenshot can be shown. */
-	@Inject(method = "doWorldLoad", at = @At("HEAD"))
+	/**
+	 * Remembers which singleplayer world is being loaded and shows the auxiliary transition screen.
+	 * The world is only really loaded once that screen has fully faded in.
+	 */
+	@Inject(method = "doWorldLoad", at = @At("HEAD"), cancellable = true)
 	private void dopes$beginSingleplayerSession(LevelStorageSource.LevelStorageAccess levelStorageAccess,
 			PackRepository packRepository, WorldStem worldStem, boolean bl, CallbackInfo ci) {
-		String worldId = levelStorageAccess.getLevelId();
-		SeamlessSession.setSingleplayerWorldId(worldId);
-		SeamlessSession.begin(SeamlessScreenshots.singleplayer(worldId));
+		// The deferred action re-enters this method, and the session is already set up by then.
+		if (!SeamlessCurtain.isReplaying()) {
+			String worldId = levelStorageAccess.getLevelId();
+			SeamlessSession.setSingleplayerWorldId(worldId);
+			SeamlessSession.begin(SeamlessScreenshots.singleplayer(worldId));
+		}
+
+		if (SeamlessCurtain.beginEnter("entering the world",
+				() -> Minecraft.getInstance().doWorldLoad(levelStorageAccess, packRepository, worldStem, bl))) {
+			ci.cancel();
+		}
 	}
 
 	/** "Save and Quit to Title" in the pause menu. */
 	@Inject(method = "disconnectFromWorld", at = @At("HEAD"), cancellable = true)
 	private void dopes$captureOnQuitToTitle(Component component, CallbackInfo ci) {
-		if (SeamlessCapture.request("quitting to the title screen",
+		if (SeamlessCurtain.beginLeave("quitting to the title screen",
 				() -> Minecraft.getInstance().disconnectFromWorld(component))) {
 			ci.cancel();
 		}

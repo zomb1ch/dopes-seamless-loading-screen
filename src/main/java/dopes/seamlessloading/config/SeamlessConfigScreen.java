@@ -55,6 +55,12 @@ public final class SeamlessConfigScreen {
 		Option<Boolean> screenshotsOnServers = bool("general.serverScreenshots", defaults.screenshotsOnServers,
 				() -> config.screenshotsOnServers, value -> config.screenshotsOnServers = value);
 
+		Option<Boolean> transitionScreens = bool("general.transition", defaults.transitionScreens,
+				() -> config.transitionScreens, value -> config.transitionScreens = value);
+
+		Option<Integer> transitionFadeDuration = integer("general.transitionFade", defaults.transitionFadeDuration,
+				0, 10000, () -> config.transitionFadeDuration, value -> config.transitionFadeDuration = value);
+
 		Option<Integer> blurStrength = slider("display.blurStrength", defaults.blurStrength, 0, 64,
 				() -> config.blurStrength, value -> config.blurStrength = value);
 
@@ -96,7 +102,7 @@ public final class SeamlessConfigScreen {
 				.category(ConfigCategory.createBuilder()
 						.name(name("page"))
 						.group(group("general", enabled, screenshotsOnServers, slideshowIfNoScreenshot, waitForAllChunks,
-								chunkCounter))
+								chunkCounter, transitionScreens, transitionFadeDuration))
 						.group(group("display", blurStrength, blurSpeed, backgroundDim, fadeDuration, imageSize))
 						.group(group("timing", minShowTime, maxShowTime))
 						.group(group("slideshow", slideshowSpeed, slideshowFadeSpeed, openFolder))

@@ -2,6 +2,7 @@ package dopes.seamlessloading;
 
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.platform.NativeImage;
+import dopes.seamlessloading.config.SeamlessConfig;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
@@ -31,6 +32,8 @@ public final class SeamlessCapture {
 	private static volatile boolean pending;
 	private static volatile boolean reentrant;
 	private static volatile Runnable continuation;
+	/** Path of the last successfully written screenshot, waiting to be picked up. */
+	private static volatile Path writtenPath;
 
 	private SeamlessCapture() {
 	}
@@ -53,20 +56,30 @@ public final class SeamlessCapture {
 
 		pending = true;
 		continuation = after;
+		writtenPath = null;
 		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Taking a screenshot before {}", source);
 		return true;
 	}
 
 	/**
-	 * {@code false} when the user disabled server screenshots and the current world is not a
-	 * singleplayer one, so the frame is never captured in the first place.
+	 * Whether the current frame should be captured. The auxiliary exit screen always needs a fresh
+	 * screenshot, even on servers with server screenshots turned off, so that option only applies
+	 * when the auxiliary screens are disabled.
 	 */
 	private static boolean shouldCapture(Minecraft minecraft) {
-		if (SeamlessConfigManager.get().screenshotsOnServers) {
+		SeamlessConfig config = SeamlessConfigManager.get();
+		if (config.transitionScreens) {
 			return true;
 		}
 
-		return minecraft.getSingleplayerServer() != null;
+		return config.screenshotsOnServers || minecraft.getSingleplayerServer() != null;
+	}
+
+	/** Picks up the path of the screenshot written since the last call, or {@code null}. */
+	public static Path takeWrittenPath() {
+		Path path = writtenPath;
+		writtenPath = null;
+		return path;
 	}
 
 	public static void cancel() {
@@ -150,6 +163,7 @@ public final class SeamlessCapture {
 				}
 
 				nativeImage.writeToFile(target);
+				writtenPath = target;
 				DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Saved the screenshot of the world to {}", target);
 			} catch (Exception e) {
 				DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to save the screenshot to {}", target, e);

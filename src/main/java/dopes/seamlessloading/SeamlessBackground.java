@@ -280,6 +280,25 @@ public final class SeamlessBackground {
 		renderDim(graphics, screenWidth, screenHeight, alpha);
 	}
 
+	/**
+	 * Draws the image as a static overlay: fully blurred, with the very same dim as the loading
+	 * screen. Used by the auxiliary transition screens, which never animate their blur.
+	 */
+	public static void renderOverlay(GuiGraphics graphics, int screenWidth, int screenHeight, float alpha) {
+		if (current == null || alpha <= 0.001F) {
+			return;
+		}
+
+		SeamlessConfig config = SeamlessConfigManager.get();
+		long now = Util.getMillis();
+		updateSlideshow(config, now);
+
+		float blur = config.blurStrength > 0 && current.hasBlur() ? 1.0F : 0.0F;
+		drawBackground(graphics, screenWidth, screenHeight, alpha, blur,
+				incoming == null ? 0.0F : crossfadeProgress(config, now) * alpha);
+		renderDim(graphics, screenWidth, screenHeight, alpha);
+	}
+
 	/** Rectangle (x, y, width, height) that covers the whole screen while keeping the aspect ratio. */
 	public static int[] coverRect(int screenWidth, int screenHeight, float imageRatio) {
 		float screenRatio = (float) screenWidth / (float) screenHeight;

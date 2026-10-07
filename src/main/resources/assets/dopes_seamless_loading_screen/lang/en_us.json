@@ -17,6 +17,10 @@
   "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Show chunk loading progress at the top of the screen (loaded / total).",
   "dopes_seamless_loading_screen.config.general.serverScreenshots": "Screenshots on Servers",
   "dopes_seamless_loading_screen.config.general.serverScreenshots.description": "Take and show screenshots while playing on servers. When disabled, no screenshots are taken or shown for servers; the loading screen falls back to the slideshow (if enabled). The chunk counter keeps working.",
+  "dopes_seamless_loading_screen.config.general.transition": "Transition Screens",
+  "dopes_seamless_loading_screen.config.general.transition.description": "Show the screenshot (or slideshow) over the transition when entering a world or server and when leaving them. The screen fades in, starts the load and stays on top until the loading screen appears (hiding the screens in between), then fades out. Its blur and dim are the same as on the loading screen, but static.",
+  "dopes_seamless_loading_screen.config.general.transitionFade": "Transition Fade Duration (ms)",
+  "dopes_seamless_loading_screen.config.general.transitionFade.description": "How long the auxiliary screen takes to appear and to disappear. The same for entering and leaving, before and after the world. 0 = no animation.",
 
   "dopes_seamless_loading_screen.config.display": "Display",
   "dopes_seamless_loading_screen.config.display.blurStrength": "Blur Strength",

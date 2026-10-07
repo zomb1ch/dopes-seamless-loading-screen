@@ -1,6 +1,6 @@
 package dopes.seamlessloading.mixin;
 
-import dopes.seamlessloading.SeamlessCapture;
+import dopes.seamlessloading.SeamlessCurtain;
 import net.minecraft.client.multiplayer.ClientCommonPacketListenerImpl;
 import net.minecraft.network.DisconnectionDetails;
 import org.spongepowered.asm.mixin.Mixin;
@@ -14,7 +14,7 @@ public abstract class ClientCommonPacketListenerMixin {
 	/** The server (or the connection) closed the world: save a screenshot before leaving it. */
 	@Inject(method = "onDisconnect", at = @At("HEAD"), cancellable = true)
 	private void dopes$captureOnServerDisconnect(DisconnectionDetails details, CallbackInfo ci) {
-		if (SeamlessCapture.request("disconnecting from the server",
+		if (SeamlessCurtain.beginLeave("disconnecting from the server",
 				() -> ((ClientCommonPacketListenerImpl) (Object) this).onDisconnect(details))) {
 			ci.cancel();
 		}

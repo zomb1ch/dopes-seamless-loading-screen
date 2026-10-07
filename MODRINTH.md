@@ -76,7 +76,9 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 | Setting | Default | What it does |
 |---|---|---|
 | Mod Enabled | on | Turns the whole mod on or off. |
-| Screenshots on Servers | off | Take and show screenshots while playing on servers. When off, servers fall back to the slideshow and the chunk counter still works. |
+| Screenshots on Servers | off | Take and show screenshots while playing on servers. When off, servers fall back to the slideshow and the chunk counter still works. A fresh screenshot is always captured when leaving a server, so the exit transition screen has something to show. |
+| Transition Screens | on | Show the screenshot (or slideshow) over the transition when entering a world or server and when leaving them. The screen fades in, starts the load and stays on top until the loading screen appears (hiding the screens in between), then fades out. Its blur and dim match the loading screen, but are static. |
+| Transition Fade Duration | 1500 ms | How long the transition screen takes to appear and to disappear. The same for entering and leaving. 0 = no animation. |
 | Slideshow (no screenshot) | on | Show the slideshow when a world has no screenshot yet. |
 | Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. |
 | Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
@@ -183,7 +185,9 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 | Настройка | По умолчанию | Что делает |
 |---|---|---|
 | Мод включён | вкл | Включает или отключает весь мод. |
-| Скриншоты для серверов | выкл | Делать и показывать скриншоты на серверах. Если выключено, работает слайд-шоу, а счётчик чанков продолжает работать. |
+| Скриншоты для серверов | выкл | Делать и показывать скриншоты на серверах. Если выключено, работает слайд-шоу, а счётчик чанков продолжает работать. При выходе с сервера скриншот делается всегда — чтобы вспомогательному экрану было что показать. |
+| Вспомогательные экраны переходов | вкл | Показывать скриншот (или слайд-шоу) поверх перехода при входе в мир или на сервер и при выходе из них. Экран плавно появляется, запускает загрузку и держится, пока не появится экран загрузки (скрывая промежуточные экраны), после чего плавно исчезает. Размытие и затемнение такие же, как на экране загрузки, но статичные. |
+| Время fade анимации переходов | 1500 мс | Длительность появления и исчезновения вспомогательного экрана. Одна и та же для входа и выхода. 0 = без анимации. |
 | Слайд-шоу, если нет скриншота | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
 | Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. |
 | Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
