@@ -31,7 +31,8 @@ public abstract class ConnectScreenMixin {
 	 */
 	@Inject(
 			method = "connect(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/resolver/ServerAddress;Lnet/minecraft/client/multiplayer/ServerData;Lnet/minecraft/client/multiplayer/TransferState;)V",
-			at = @At("HEAD")
+			at = @At("HEAD"),
+			cancellable = true
 	)
 	private void dopes$beginServerSession(Minecraft minecraft, ServerAddress serverAddress, ServerData serverData,
 			TransferState transferState, CallbackInfo ci) {
