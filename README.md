@@ -1,10 +1,19 @@
 # dope's Seamless Loading Screen
 
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-62b47a?style=for-the-badge)](https://www.minecraft.net/)
+[![Fabric](https://img.shields.io/badge/Loader-Fabric-dbd0b4?style=for-the-badge)](https://fabricmc.net/)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-dopes--seamless--loading--screen-181717?style=for-the-badge&logo=github)](https://github.com/zomb1ch/dopes-seamless-loading-screen)
+
 **English** | [Русский](#русский)
 
 A client-side Fabric mod for **Minecraft 1.21.11** that takes a screenshot of the game when you
 leave a world or a server and shows it on the loading screen when you come back — so instead of a
 generic "Loading terrain..." screen you see the place you are returning to.
+
+**Links:** [GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
+[Issues & suggestions](https://github.com/zomb1ch/dopes-seamless-loading-screen/issues) ·
+[Modrinth page source](MODRINTH.md)
 
 ---
 
