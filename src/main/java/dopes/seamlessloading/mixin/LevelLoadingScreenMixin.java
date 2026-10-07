@@ -1,6 +1,7 @@
 package dopes.seamlessloading.mixin;
 
 import dopes.seamlessloading.SeamlessBackground;
+import dopes.seamlessloading.SeamlessCurtain;
 import dopes.seamlessloading.SeamlessFadeScreen;
 import dopes.seamlessloading.SeamlessSession;
 import dopes.seamlessloading.config.SeamlessConfig;
@@ -20,6 +21,16 @@ public abstract class LevelLoadingScreenMixin {
 
 	@Shadow
 	private LevelLoadingScreen.Reason reason;
+
+	/**
+	 * Advances the transition overlay while the loading screen is up. The world load loop ticks the
+	 * loading screen without running the client tick, so without this the overlay would never fade
+	 * out over the loading screen. Deferred actions are never run from here.
+	 */
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void dopes$curtainTick(CallbackInfo ci) {
+		SeamlessCurtain.tickLoadingScreen();
+	}
 
 	/**
 	 * Draws the screenshot on top of the vanilla background (panorama + blur + dirt texture), so

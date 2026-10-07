@@ -53,4 +53,15 @@ public abstract class MinecraftClientMixin {
 			ci.cancel();
 		}
 	}
+
+	/**
+	 * Advances the auxiliary transition screen. This is deliberately not done from {@code Screen#tick}:
+	 * the deferred action may load a world, and the world load loop runs the loading screen tick in
+	 * between the before/after screen tick events of the Fabric screen API, which then ends up firing
+	 * its after-tick event with a null screen.
+	 */
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void dopes$curtainTick(CallbackInfo ci) {
+		SeamlessCurtain.tick();
+	}
 }

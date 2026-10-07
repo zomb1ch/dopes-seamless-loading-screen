@@ -126,8 +126,27 @@ public final class SeamlessCurtain {
 		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Transition screen: {} ({})", next, source);
 	}
 
-	/** Called once per client tick, for every screen. */
+	/**
+	 * Advances the overlay. Called once per client tick, which is also where the deferred actions are
+	 * run: they may load a world or disconnect from one, and doing that from inside
+	 * {@code Screen#tick} breaks the screen ticking bookkeeping of the Fabric screen API (it ends up
+	 * firing its after-tick event with a null screen).
+	 */
 	public static void tick() {
+		advance(true);
+	}
+
+	/**
+	 * Advances the overlay while the loading screen ticks itself inside the world load loop. That
+	 * loop does not run the client tick at all, so without this the fade out over the loading screen
+	 * would never happen. Deferred actions are never run from here: the world load loop must not be
+	 * re-entered.
+	 */
+	public static void tickLoadingScreen() {
+		advance(false);
+	}
+
+	private static void advance(boolean mayRunActions) {
 		if (phase == Phase.IDLE) {
 			return;
 		}
@@ -136,9 +155,13 @@ public final class SeamlessCurtain {
 		long now = Util.getMillis();
 
 		switch (phase) {
-			case WAIT_FOR_CAPTURE -> tickWaitForCapture(now);
+			case WAIT_FOR_CAPTURE -> {
+				if (mayRunActions) {
+					tickWaitForCapture(now);
+				}
+			}
 			case FADE_IN -> {
-				if (now - phaseStartMillis >= fadeDuration()) {
+				if (mayRunActions && now - phaseStartMillis >= fadeDuration()) {
 					runAction();
 					start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
 				}

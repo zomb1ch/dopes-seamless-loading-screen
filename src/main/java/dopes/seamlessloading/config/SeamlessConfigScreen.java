@@ -102,8 +102,9 @@ public final class SeamlessConfigScreen {
 				.category(ConfigCategory.createBuilder()
 						.name(name("page"))
 						.group(group("general", enabled, screenshotsOnServers, slideshowIfNoScreenshot, waitForAllChunks,
-								chunkCounter, transitionScreens, transitionFadeDuration))
-						.group(group("display", blurStrength, blurSpeed, backgroundDim, fadeDuration, imageSize))
+								chunkCounter))
+						.group(group("display", transitionScreens, transitionFadeDuration, blurStrength, blurSpeed,
+								backgroundDim, fadeDuration, imageSize))
 						.group(group("timing", minShowTime, maxShowTime))
 						.group(group("slideshow", slideshowSpeed, slideshowFadeSpeed, openFolder))
 						.build())

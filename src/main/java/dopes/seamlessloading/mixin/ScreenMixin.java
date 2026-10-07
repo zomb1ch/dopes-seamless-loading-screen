@@ -12,14 +12,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
  * Draws the auxiliary transition screen on top of whatever screen is currently shown. Doing it here,
  * instead of using a screen of our own, is what lets the overlay survive screen changes and hide the
  * vanilla screens that appear in between.
+ *
+ * <p>The overlay is advanced from {@code Minecraft#tick} and {@code LevelLoadingScreen#tick} instead
+ * of from here: running the deferred world load from inside a screen tick confuses the screen
+ * ticking bookkeeping of the Fabric screen API.
  */
 @Mixin(Screen.class)
 public abstract class ScreenMixin {
-
-	@Inject(method = "tick", at = @At("HEAD"))
-	private void dopes$curtainTick(CallbackInfo ci) {
-		SeamlessCurtain.tick();
-	}
 
 	/**
 	 * {@code renderWithTooltipAndSubtitles} is {@code final} and runs after the screen has drawn
