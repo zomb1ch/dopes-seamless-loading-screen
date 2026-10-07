@@ -114,7 +114,7 @@ public final class SeamlessCurtain {
 	 * "Loading resources" screens have to be hidden from now on (see {@link #shouldHideScreen(Screen)}).
 	 */
 	public static void prepare(Path screenshot) {
-		if (running || !enabled()) {
+		if (running || !enabled() || prepared) {
 			return;
 		}
 
@@ -220,7 +220,12 @@ public final class SeamlessCurtain {
 						start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
 					} else if (mayRunActions) {
 						runAction();
-						start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
+						// Running the action may already have advanced the phase: while it loads the
+						// world, the loading screen ticks itself and moves us on to the next phase (or
+						// all the way to the end). Only move on here if we are still fading in.
+						if (phase == Phase.FADE_IN) {
+							start(waitForLoadingScreen ? Phase.WAIT_FOR_LOADING_SCREEN : Phase.FADE_OUT, label, null);
+						}
 					}
 				}
 			}
