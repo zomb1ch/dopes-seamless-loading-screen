@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Prepares the transition overlay when a new world is being created, before the vanilla
@@ -24,7 +24,7 @@ public abstract class CreateWorldScreenMixin {
 
 	@Inject(method = "createNewWorld", at = @At("HEAD"))
 	private void dopes$prepareNewWorld(LayeredRegistryAccess<RegistryLayer> registries, WorldData worldData,
-			CallbackInfo ci) {
+			CallbackInfoReturnable<Boolean> cir) {
 		SeamlessCurtain.prepareSingleplayer(this.uiState.getTargetFolder());
 	}
 }

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Stream;
 
 /**
@@ -76,8 +77,9 @@ public final class SeamlessBackground {
 		}
 
 		slides = found;
-		slideIndex = 0;
-		current = loadSlide(0);
+		// Start on a random slide so the same picture is not shown every single time.
+		slideIndex = slides.isEmpty() ? 0 : ThreadLocalRandom.current().nextInt(slides.size());
+		current = loadSlide(slideIndex);
 		lastSwitch = Util.getMillis();
 	}
 
