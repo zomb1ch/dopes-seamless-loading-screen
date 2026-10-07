@@ -70,6 +70,12 @@ processResources {
 	filesMatching("fabric.mod.json") {
 		expand "mod_version": modVersion
 	}
+
+	// The sprite sheets live in ./sprites; bundle them into the mod resources.
+	from("sprites") {
+		into "assets/${mod_id}/gui"
+		include "*.png"
+	}
 }
 
 tasks.withType(JavaCompile).configureEach {
