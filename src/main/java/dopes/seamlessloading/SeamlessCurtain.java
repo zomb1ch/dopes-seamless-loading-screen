@@ -66,6 +66,8 @@ public final class SeamlessCurtain {
 	/** A world is being opened/created and the vanilla loading screens must stay hidden. */
 	private static boolean prepared;
 	private static String label = "";
+	/** HUD style drawn on the overlay, or {@code null} when the loading screen handles it. */
+	private static SeamlessHud.Style hudStyle;
 	/** Screen that was current when the enter overlay started; used to tell loading apart from errors. */
 	private static Screen originScreen;
 
@@ -119,6 +121,7 @@ public final class SeamlessCurtain {
 		}
 
 		SeamlessSession.begin(screenshot);
+		SeamlessHud.reset();
 		prepared = SeamlessBackground.isActive();
 	}
 
@@ -177,7 +180,23 @@ public final class SeamlessCurtain {
 		phaseStartMillis = Util.getMillis();
 		action = nextAction;
 		label = source;
+		hudStyle = styleFor(source);
 		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Transition screen: {} ({})", next, source);
+	}
+
+	/**
+	 * The overlay draws the "saving" / "connecting" text itself. While a world is loading there is
+	 * nothing to draw here: the loading screen shows its own HUD (with the progress bar).
+	 */
+	private static SeamlessHud.Style styleFor(String source) {
+		if (source.contains("connecting")) {
+			return SeamlessHud.Style.CONNECTING;
+		}
+		if (source.contains("quitting") || source.contains("disconnecting") || source.contains("closing")) {
+			return SeamlessHud.Style.SAVING;
+		}
+
+		return null;
 	}
 
 	/**
@@ -286,6 +305,10 @@ public final class SeamlessCurtain {
 		};
 
 		SeamlessBackground.renderOverlay(graphics, screenWidth, screenHeight, alpha);
+
+		if (hudStyle != null) {
+			SeamlessHud.render(graphics, screenWidth, screenHeight, hudStyle, 1.0F);
+		}
 	}
 
 	private static float progress() {
