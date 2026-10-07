@@ -7,6 +7,7 @@
     "ClientCommonPacketListenerMixin",
     "ConnectScreenAccessor",
     "ConnectScreenMixin",
+    "CreateWorldScreenMixin",
     "GameRendererMixin",
     "LevelLoadingScreenMixin",
     "LevelLoadTrackerMixin",

@@ -9,6 +9,7 @@ import net.minecraft.client.gui.screens.GenericMessageScreen;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.gui.screens.ProgressScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 
@@ -62,6 +63,8 @@ public final class SeamlessCurtain {
 	private static boolean waitForLoadingScreen;
 	private static boolean endSessionAfterFade;
 	private static boolean running;
+	/** A world is being opened/created and the vanilla loading screens must stay hidden. */
+	private static boolean prepared;
 	private static String label = "";
 	/** Screen that was current when the enter overlay started; used to tell loading apart from errors. */
 	private static Screen originScreen;
@@ -102,30 +105,42 @@ public final class SeamlessCurtain {
 	}
 
 	/**
-	 * Starts the overlay as soon as an existing world is picked, without deferring anything: the
-	 * world keeps loading on its own. This is what makes the overlay cover the vanilla
-	 * "Reading world data" / "Loading resources" screens, which would otherwise flash before the
-	 * loading screen shows up (see {@link #shouldHideScreen(Screen)}).
+	 * Prepares the overlay as soon as a world is picked or created, <i>before</i> it actually loads.
 	 *
-	 * @param worldId folder name of the singleplayer world being opened
-	 * @return {@code true} if the overlay was started
+	 * <p>Nothing is drawn yet: the fade is started later (see {@link #beginEnter(String, Runnable)},
+	 * called from the world load), so that it plays while the game is rendering. Starting it here
+	 * instead would make it stutter, because loading the resources blocks the render thread. All this
+	 * does is show the background and remember that the vanilla "Reading world data" /
+	 * "Loading resources" screens have to be hidden from now on (see {@link #shouldHideScreen(Screen)}).
 	 */
-	public static boolean armEnter(String source, String worldId) {
-		if (phase != Phase.IDLE || running || !enabled()) {
-			return false;
+	public static void prepare(Path screenshot) {
+		if (running || !enabled()) {
+			return;
 		}
 
+		SeamlessSession.begin(screenshot);
+		prepared = SeamlessBackground.isActive();
+	}
+
+	/** {@code true} while a world is being prepared but the overlay has not faded in yet. */
+	public static boolean isPrepared() {
+		return prepared;
+	}
+
+	/** Prepares the overlay for a singleplayer world that is about to be opened or created. */
+	public static void prepareSingleplayer(String worldId) {
 		SeamlessSession.setSingleplayerWorldId(worldId);
-		SeamlessSession.begin(SeamlessScreenshots.singleplayer(worldId));
-		if (!SeamlessBackground.isActive()) {
-			return false;
-		}
+		prepare(SeamlessScreenshots.singleplayer(worldId));
+	}
 
-		originScreen = Minecraft.getInstance().screen;
-		waitForLoadingScreen = true;
-		endSessionAfterFade = false;
-		start(Phase.FADE_IN, source, null);
-		return true;
+	/** Prepares the overlay for a server that is about to be joined. */
+	public static void prepareServer(ServerData serverData) {
+		// With server screenshots disabled the session still runs, so the slideshow and the chunk
+		// counter keep working; only the screenshot is skipped (both reading and writing it).
+		Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
+				? SeamlessScreenshots.server(serverData.ip)
+				: null;
+		prepare(screenshot);
 	}
 
 	/**
@@ -282,11 +297,18 @@ public final class SeamlessCurtain {
 	 * instead, so only the screenshot stays visible during the whole transition.
 	 */
 	public static boolean shouldHideScreen(Screen screen) {
-		if (screen == null || phase == Phase.IDLE || phase == Phase.WAIT_FOR_CAPTURE) {
+		if (screen == null) {
 			return false;
 		}
 
-		return screen instanceof GenericMessageScreen || screen instanceof ProgressScreen;
+		boolean transitioning = prepared || (phase != Phase.IDLE && phase != Phase.WAIT_FOR_CAPTURE);
+		if (!transitioning) {
+			return false;
+		}
+
+		return screen instanceof GenericMessageScreen
+				|| screen instanceof ProgressScreen
+				|| screen instanceof ConnectScreen;
 	}
 
 	/** Screens that legitimately appear while the world is still being loaded. */
@@ -321,6 +343,7 @@ public final class SeamlessCurtain {
 	private static void finish() {
 		phase = Phase.IDLE;
 		action = null;
+		prepared = false;
 		originScreen = null;
 
 		if (endSessionAfterFade) {

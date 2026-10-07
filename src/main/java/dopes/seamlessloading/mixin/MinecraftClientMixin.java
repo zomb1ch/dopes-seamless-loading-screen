@@ -28,13 +28,14 @@ public abstract class MinecraftClientMixin {
 	@Inject(method = "doWorldLoad", at = @At("HEAD"), cancellable = true)
 	private void dopes$beginSingleplayerSession(LevelStorageSource.LevelStorageAccess levelStorageAccess,
 			PackRepository packRepository, WorldStem worldStem, boolean bl, CallbackInfo ci) {
-		// Overlay already running (picked from the world list, or this is the deferred action): load.
-		if (SeamlessCurtain.isActive()) {
+		// The deferred action re-enters this method, and the overlay is already running by then.
+		if (SeamlessCurtain.isReplaying()) {
 			return;
 		}
 
-		// The deferred action re-enters this method, and the session is already set up by then.
-		if (!SeamlessCurtain.isReplaying()) {
+		// The overlay was prepared when the world was picked or created (see WorldOpenFlowsMixin).
+		// Paths that do not go through it (e.g. quick play) set the session up here instead.
+		if (!SeamlessCurtain.isPrepared()) {
 			String worldId = levelStorageAccess.getLevelId();
 			SeamlessSession.setSingleplayerWorldId(worldId);
 			SeamlessSession.begin(SeamlessScreenshots.singleplayer(worldId));

@@ -1,11 +1,9 @@
 package dopes.seamlessloading.mixin;
 
 import dopes.seamlessloading.SeamlessCurtain;
-import dopes.seamlessloading.SeamlessScreenshots;
-import dopes.seamlessloading.SeamlessSession;
-import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.ConnectScreen;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.TransferState;
 import net.minecraft.client.multiplayer.resolver.ServerAddress;
@@ -14,14 +12,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.nio.file.Path;
-
 @Mixin(ConnectScreen.class)
 public abstract class ConnectScreenMixin {
 
 	/**
-	 * Called once the connection thread is started, which is after the old world has already been
-	 * closed, so the screenshot of the server we are joining can be loaded now.
+	 * Prepares the overlay before the vanilla "Connecting to the server" screen is shown, so that
+	 * screen stays hidden and only the screenshot is visible while the connection is being made.
+	 */
+	@Inject(method = "startConnecting", at = @At("HEAD"))
+	private static void dopes$prepareServer(Screen parent, Minecraft minecraft, ServerAddress serverAddress,
+			ServerData serverData, boolean quickPlay, TransferState transferState, CallbackInfo ci) {
+		SeamlessCurtain.prepareServer(serverData);
+	}
+
+	/**
+	 * Starts the overlay once the connection thread is about to be started, which is after the old
+	 * world has already been closed, so the screenshot of the server we are joining can be loaded now.
 	 */
 	@Inject(
 			method = "connect(Lnet/minecraft/client/Minecraft;Lnet/minecraft/client/multiplayer/resolver/ServerAddress;Lnet/minecraft/client/multiplayer/ServerData;Lnet/minecraft/client/multiplayer/TransferState;)V",
@@ -29,16 +35,6 @@ public abstract class ConnectScreenMixin {
 	)
 	private void dopes$beginServerSession(Minecraft minecraft, ServerAddress serverAddress, ServerData serverData,
 			TransferState transferState, CallbackInfo ci) {
-		// The deferred action re-enters this method, and the session is already set up by then.
-		if (!SeamlessCurtain.isReplaying()) {
-			// With server screenshots disabled the session still runs, so the slideshow and the chunk
-			// counter keep working; only the screenshot is skipped (both reading and writing it).
-			Path screenshot = SeamlessConfigManager.get().screenshotsOnServers
-					? SeamlessScreenshots.server(serverData.ip)
-					: null;
-			SeamlessSession.begin(screenshot);
-		}
-
 		if (SeamlessCurtain.beginEnter("connecting to the server",
 				() -> ((ConnectScreenAccessor) (Object) this)
 						.seamless$connect(minecraft, serverAddress, serverData, transferState))) {
