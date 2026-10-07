@@ -112,13 +112,15 @@ public final class SeamlessSession {
 		serverAddress = null;
 		serverScreenshot = null;
 
-		boolean same = SeamlessServerPositions.matches(address,
-				minecraft.level.dimension().identifier().toString(),
-				minecraft.player.getX(), minecraft.player.getY(), minecraft.player.getZ());
+		String dimension = minecraft.level.dimension().identifier().toString();
+		double x = minecraft.player.getX();
+		double y = minecraft.player.getY();
+		double z = minecraft.player.getZ();
+		boolean same = SeamlessServerPositions.matches(address, dimension, x, y, z);
+		DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Joined {} at {} ({}, {}, {}) - {}", address, dimension, x, y, z,
+				same ? "same spot, showing the screenshot" : "somewhere else, keeping the slideshow");
 		if (same) {
 			SeamlessBackground.crossFadeTo(screenshot);
-		} else {
-			DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Joined {} somewhere else, keeping the slideshow", address);
 		}
 	}
 

@@ -16,7 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ClientPacketListener.class)
 public abstract class ClientPacketListenerMixin {
 
-	@Inject(method = "handleMovePlayer", at = @At("HEAD"))
+	/**
+	 * Runs after the server's position packet has been applied, so {@code minecraft.player} is
+	 * already at the real spot. That is the moment the transition screen learns whether we ended up
+	 * at the same place as last time.
+	 */
+	@Inject(method = "handleMovePlayer", at = @At("TAIL"))
 	private void dopes$onPlayerPosition(ClientboundPlayerPositionPacket packet, CallbackInfo ci) {
 		SeamlessSession.onServerSpotKnown();
 	}
