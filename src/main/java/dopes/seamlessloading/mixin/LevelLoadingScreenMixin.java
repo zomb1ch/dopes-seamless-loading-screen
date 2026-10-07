@@ -52,6 +52,13 @@ public abstract class LevelLoadingScreenMixin {
 		SeamlessBackground.render(guiGraphics, screen.width, screen.height);
 	}
 
+	@Inject(method = "tick", at = @At("HEAD"))
+	private void dopes$tickHud(CallbackInfo ci) {
+		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning()) {
+			SeamlessHud.tick(progress());
+		}
+	}
+
 	/**
 	 * Replaces the whole vanilla loading screen content (the chunk map, the "Downloading terrain"
 	 * text and the vanilla progress bar) with our own HUD. The optional chunk counter is kept.
@@ -63,7 +70,7 @@ public abstract class LevelLoadingScreenMixin {
 		}
 
 		LevelLoadingScreen screen = (LevelLoadingScreen) (Object) this;
-		SeamlessHud.render(guiGraphics, screen.width, screen.height, SeamlessHud.Style.LOADING, progress());
+		SeamlessHud.render(guiGraphics, screen.width, screen.height, SeamlessHud.Style.LOADING, 1.0F);
 		renderChunkCounter(guiGraphics, screen);
 		ci.cancel();
 	}

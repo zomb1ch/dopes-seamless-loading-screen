@@ -307,7 +307,7 @@ public final class SeamlessCurtain {
 		SeamlessBackground.renderOverlay(graphics, screenWidth, screenHeight, alpha);
 
 		if (hudStyle != null) {
-			SeamlessHud.render(graphics, screenWidth, screenHeight, hudStyle, 1.0F);
+			SeamlessHud.render(graphics, screenWidth, screenHeight, hudStyle, alpha);
 		}
 	}
 

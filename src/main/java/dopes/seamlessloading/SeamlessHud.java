@@ -1,6 +1,7 @@
 package dopes.seamlessloading;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -8,6 +9,7 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 
 import java.io.InputStream;
@@ -33,16 +35,15 @@ public final class SeamlessHud {
 	/** One source pixel is drawn as this many GUI pixels. */
 	private static final int SCALE = 3;
 	/** Equal margin from the left, right and bottom screen edges. */
-	private static final int MARGIN = 10;
+	private static final int MARGIN = 20;
 	/** Thickness of the progress bar. */
 	private static final int BAR_HEIGHT = 8;
 	/** How long one animation frame is shown. */
-	private static final long FRAME_MILLIS = 100L;
-	/** How much of the remaining distance the bar covers per frame, which keeps it smooth. */
+	private static final long FRAME_MILLIS = 200L;
+	/** How much of the remaining distance the bar covers per tick, which keeps it smooth. */
 	private static final float BAR_SMOOTHING = 0.06F;
-
-	private static final int BAR_BACKGROUND = 0x80000000;
-	private static final int BAR_FILL = 0xFFFFFFFF;
+	/** Opacity of the bar background (semi transparent black). */
+	private static final float BAR_BACKGROUND_ALPHA = 0.5F;
 
 	private static boolean loaded;
 	private static Sprite loadingText;
@@ -51,22 +52,51 @@ public final class SeamlessHud {
 	private static Sprite connectingText;
 
 	private static float shownProgress;
+	/** When the HUD started fading in, or 0 while it is not shown. */
+	private static long fadeStart;
 
 	private SeamlessHud() {
 	}
 
-	/** Restarts the bar, called when a new transition starts. */
+	/** Restarts the bar and the fade, called when a new transition starts. */
 	public static void reset() {
 		shownProgress = 0.0F;
+		fadeStart = 0L;
+	}
+
+	/** Moves the shown value towards the target, never jumping and never going backwards. */
+	public static void tick(float target) {
+		if (target < shownProgress) {
+			return;
+		}
+
+		shownProgress += (target - shownProgress) * BAR_SMOOTHING;
+		if (target - shownProgress < 0.0005F) {
+			shownProgress = target;
+		}
+	}
+
+	/** Whether the bar has reached the end; the loading screen waits for this before closing. */
+	public static boolean isFull() {
+		return shownProgress >= 0.999F;
 	}
 
 	/**
-	 * Draws the HUD. {@code progress} is the target fill of the bar (0..1) and is only used for
-	 * {@link Style#LOADING}.
+	 * Draws the HUD. {@code alpha} is the opacity coming from the screen it is drawn on; the HUD
+	 * additionally fades in over the same duration as the transition screen.
 	 */
-	public static void render(GuiGraphics graphics, int width, int height, Style style, float progress) {
+	public static void render(GuiGraphics graphics, int width, int height, Style style, float alpha) {
 		Sprite text = text(style);
 		if (text == null) {
+			return;
+		}
+
+		if (fadeStart == 0L) {
+			fadeStart = Util.getMillis();
+		}
+
+		float fade = Math.min(alpha, ownFade());
+		if (fade <= 0.01F) {
 			return;
 		}
 
@@ -74,7 +104,7 @@ public final class SeamlessHud {
 		int barTop = barBottom - BAR_HEIGHT;
 		int textY = barTop - MARGIN - text.height();
 
-		drawFrame(graphics, text, MARGIN, textY);
+		drawFrame(graphics, text, MARGIN, textY, fade);
 
 		if (style != Style.LOADING) {
 			return;
@@ -83,52 +113,46 @@ public final class SeamlessHud {
 		Sprite icon = icon();
 		if (icon != null) {
 			int iconY = textY + (text.height() - icon.height()) / 2;
-			drawFrame(graphics, icon, width - MARGIN - icon.width(), iconY);
+			drawFrame(graphics, icon, width - MARGIN - icon.width(), iconY, fade);
 		}
 
-		drawBar(graphics, width, barTop, barBottom, smooth(progress));
+		drawBar(graphics, width, barTop, barBottom, fade);
 	}
 
-	private static void drawFrame(GuiGraphics graphics, Sprite sprite, int x, int y) {
+	/** Fades the HUD in over the same duration as the transition screen. */
+	private static float ownFade() {
+		int duration = Math.max(1, SeamlessConfigManager.get().transitionFadeDuration);
+		return Mth.clamp((float) (Util.getMillis() - fadeStart) / duration, 0.0F, 1.0F);
+	}
+
+	private static void drawFrame(GuiGraphics graphics, Sprite sprite, int x, int y, float alpha) {
 		int frame = (int) ((Util.getMillis() / FRAME_MILLIS) % sprite.frames());
-		int column = frame % sprite.columns();
-		int row = frame / sprite.columns();
+		// Frames are laid out top to bottom first, then column by column.
+		int column = frame / sprite.rows();
+		int row = frame % sprite.rows();
 
 		graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.id(), x, y,
 				(float) (column * sprite.frameWidth()), (float) (row * sprite.frameHeight()),
 				sprite.width(), sprite.height(),
 				sprite.frameWidth(), sprite.frameHeight(),
 				sprite.sheetWidth(), sprite.sheetHeight(),
-				ARGB.white(1.0F));
+				ARGB.white(alpha));
 	}
 
-	private static void drawBar(GuiGraphics graphics, int width, int barTop, int barBottom, float progress) {
+	private static void drawBar(GuiGraphics graphics, int width, int barTop, int barBottom, float alpha) {
 		int left = MARGIN;
 		int right = width - MARGIN;
 		if (right <= left) {
 			return;
 		}
 
-		graphics.fill(left, barTop, right, barBottom, BAR_BACKGROUND);
+		graphics.fill(left, barTop, right, barBottom,
+				ARGB.color(Math.round(255.0F * BAR_BACKGROUND_ALPHA * alpha), 0x000000));
 
-		int filled = Math.round((right - left) * progress);
+		int filled = Math.round((right - left) * shownProgress);
 		if (filled > 0) {
-			graphics.fill(left, barTop, left + filled, barBottom, BAR_FILL);
+			graphics.fill(left, barTop, left + filled, barBottom, ARGB.white(alpha));
 		}
-	}
-
-	/** Moves the shown value towards the target, never jumping and never going backwards. */
-	private static float smooth(float target) {
-		if (target < shownProgress) {
-			return shownProgress;
-		}
-
-		shownProgress += (target - shownProgress) * BAR_SMOOTHING;
-		if (target - shownProgress < 0.0005F) {
-			shownProgress = target;
-		}
-
-		return shownProgress;
 	}
 
 	private static Sprite text(Style style) {
