@@ -80,7 +80,7 @@ servers that do not have it.
 ### Installation
 
 1. Install Fabric Loader for your Minecraft version.
-2. Drop the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) into
+2. Drop the mod jar (for example `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar`) into
    your `mods` folder.
 3. Also install [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API is **not** needed.
 4. Mod Menu is optional but recommended — the settings screen is opened through it.
@@ -208,7 +208,7 @@ Minecraft, держится всю загрузку и растворяется 
 ### Установка
 
 1. Установите Fabric Loader для своей версии Minecraft.
-2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) в папку
+2. Положите jar мода (например, `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar`) в папку
    `mods`.
 3. Установите также [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API **не** нужен.
 4. Mod Menu не обязателен, но рекомендуется — через него открывается экран настроек.

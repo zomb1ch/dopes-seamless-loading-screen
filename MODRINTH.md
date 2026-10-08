@@ -57,10 +57,10 @@ change between them. Download the file that matches your game:
 
 | Your Minecraft | Download |
 |---|---|
-| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar` |
-| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar` |
-| **26.2** | `dopes-seamless-loading-screen-2.0+26.2.jar` |
-| **26.3** | `dopes-seamless-loading-screen-2.0+26.3.jar` |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.1+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.1+26.3.jar` |
 | 1.21 – 1.21.8 | **Not supported.** The mod needs `LevelLoadTracker` (added in 1.21.9), `Identifier`, `ARGB` and `RenderPipelines`. **1.21.9 is the minimum.** |
 
 Why several files: 1.21.x is obfuscated, so the mod is remapped through Fabric's intermediary names,
@@ -197,10 +197,10 @@ modify and include in modpacks.
 
 | Твой Minecraft | Файл |
 |---|---|
-| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar` |
-| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar` |
-| **26.2** | `dopes-seamless-loading-screen-2.0+26.2.jar` |
-| **26.3** | `dopes-seamless-loading-screen-2.0+26.3.jar` |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.1+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.1+26.3.jar` |
 | 1.21 – 1.21.8 | **Не поддерживается.** Моду нужны `LevelLoadTracker` (появился в 1.21.9), `Identifier`, `ARGB` и `RenderPipelines`. **Минимум — 1.21.9.** |
 
 Почему файлов несколько: 1.21.x обфусцирован, поэтому мод ремапится через intermediary-имена Fabric, а

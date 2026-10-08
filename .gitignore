@@ -16,3 +16,6 @@ reference/
 /*.jar
 /placeholders/
 /icon.png
+
+# Collected release jars (build.ps1 output, meant to be copied by hand)
+/release/

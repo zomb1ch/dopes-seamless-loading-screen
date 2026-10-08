@@ -19,11 +19,14 @@ three.
 `versions/26x` is a second Gradle project that builds the same mod for the 26.x line:
 
 ```
-gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar
-gradlew -p versions/262x build     ->  versions/262x/build/libs/dopes-seamless-loading-screen-2.0+26.2.jar
-gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.0+26.3.jar
-gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar
+gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar
+gradlew -p versions/262x build     ->  versions/262x/build/libs/dopes-seamless-loading-screen-2.1+26.2.jar
+gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.1+26.3.jar
+gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar
 ```
+
+`build.ps1` runs all four builds and copies the finished jars (without the `-sources` ones) into the
+`release/` folder in the project root, which is the set of files to upload or hand out.
 
 Differences from the root project:
 
