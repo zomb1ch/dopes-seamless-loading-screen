@@ -63,6 +63,7 @@ def forkedFiles = [
 		'dopes/seamlessloading/SeamlessHud.java',
 		'dopes/seamlessloading/SeamlessTexture.java',
 		'dopes/seamlessloading/mixin/CreateWorldScreenMixin.java',
+		'dopes/seamlessloading/mixin/GameRendererMixin.java',
 		'dopes/seamlessloading/mixin/LevelLoadingScreenMixin.java',
 		'dopes/seamlessloading/mixin/MinecraftClientMixin.java',
 		'dopes/seamlessloading/mixin/ScreenMixin.java',
