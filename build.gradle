@@ -35,14 +35,16 @@ loom {
 
 group = project.maven_group
 
-// Имя готового jar: <archives_base_name>-<mod_version>+<версии Minecraft>.jar.
-// Версии Minecraft берутся из gradle.properties (minecraft_versions, через запятую), поэтому
-// расширить пул поддерживаемых версий можно, не меняя этот файл.
-def minecraftVersions = project.minecraft_versions.split(',')
+// Версии Minecraft, под которые собирается мод (minecraft_versions в gradle.properties, через
+// запятую). Сборка идёт против ПОСЛЕДНЕЙ версии из списка: Fabric Loader сохраняет промежуточные
+// (intermediary) имена между версиями, поэтому один jar работает и на более старых версиях из
+// списка. Имя файла и зависимость minecraft в fabric.mod.json собираются из этого же списка.
+def minecraftVersionList = project.minecraft_versions.split(',')
 		.collect { it.trim() }
 		.findAll { !it.isEmpty() }
-		.join('-')
-version = "${project.mod_version}+${minecraftVersions}"
+def minecraftRange = ">=${minecraftVersionList.first()} <=${minecraftVersionList.last()}"
+
+version = "${project.mod_version}+${minecraftVersionList.join('-')}"
 
 dependencies {
 	// Minecraft + Mojang official mappings (через intermediary)
@@ -53,8 +55,8 @@ dependencies {
 	// и заодно добавляет sponge-mixin в classpath для компиляции миксинов.
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
-	// Fabric API
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	// Fabric API не нужен: мод использует только Fabric Loader (ClientModInitializer, FabricLoader).
+	// Убрав зависимость, мод меньше привязан к конкретной версии Minecraft.
 
 	// YACL (конфиг) — обязательная зависимость
 	modImplementation "maven.modrinth:yacl:${project.yacl_version}"
@@ -79,7 +81,7 @@ processResources {
 	inputs.property "mod_version", modVersion
 
 	filesMatching("fabric.mod.json") {
-		expand "mod_version": modVersion
+		expand "mod_version": modVersion, "minecraft_range": minecraftRange
 	}
 
 	// The sprite sheets live in ./sprites; bundle them into the mod resources.

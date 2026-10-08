@@ -49,21 +49,32 @@ does not have the mod.
 - **Fully configurable** through Mod Menu, with 10 localizations: English, Russian, Ukrainian,
   German, Spanish, French, Italian, Polish, Brazilian Portuguese and Simplified Chinese.
 
+## Supported Minecraft versions
+
+One jar covers **1.21.9, 1.21.10 and 1.21.11**. It is compiled against the newest of them; Fabric
+keeps its intermediary names stable across those versions, so the same file loads on all three.
+
+Other versions need their own build:
+
+| Versions | Why |
+|---|---|
+| 1.21 – 1.21.8 | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld` do not exist yet — that needs different code paths, not a shim. |
+| 26.1 – 26.3 | Minecraft 26.x ships unobfuscated, so it has no intermediary mappings and a jar built for 1.21.x cannot load there. |
+
 ## Requirements
 
 | | |
 |---|---|
-| Minecraft | 1.21.11 |
+| Minecraft | 1.21.9 – 1.21.11 |
 | Mod loader | Fabric Loader 0.16.0+ |
-| Required | [Fabric API](https://modrinth.com/mod/fabric-api) |
 | Required | [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl) |
 | Optional | [Mod Menu](https://modrinth.com/mod/modmenu) — needed to open the settings screen |
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 1.21.11.
-2. Put the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.11.jar`) into your `mods` folder.
-3. Install Fabric API and YetAnotherConfigLib as well.
+1. Install Fabric Loader for Minecraft 1.21.9, 1.21.10 or 1.21.11.
+2. Put the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) into your `mods` folder.
+3. Install YetAnotherConfigLib as well — Fabric API is **not** needed.
 4. Mod Menu is optional but recommended — the settings screen is opened through it.
 
 ## Where the files are stored
@@ -171,21 +182,33 @@ modify and include in modpacks.
 - **Всё настраивается** через Mod Menu, есть 10 локализаций: английская, русская, украинская, немецкая,
   испанская, французская, итальянская, польская, бразильская португальская и упрощённая китайская.
 
+### Поддерживаемые версии Minecraft
+
+Один jar покрывает **1.21.9, 1.21.10 и 1.21.11**. Он собирается против самой новой из них; Fabric
+сохраняет промежуточные (intermediary) имена между этими версиями, поэтому один и тот же файл
+загружается на всех трёх.
+
+Для других версий нужна своя сборка:
+
+| Версии | Почему |
+|---|---|
+| 1.21 – 1.21.8 | Ещё нет `LevelLoadTracker`, `ARGB`, `RenderPipelines` и `Minecraft#disconnectFromWorld` — там нужен другой код, а не заглушка. |
+| 26.1 – 26.3 | Minecraft 26.x поставляется необфусцированным, поэтому intermediary-маппингов для него нет и jar под 1.21.x туда не загрузится. |
+
 ### Требования
 
 | | |
 |---|---|
-| Minecraft | 1.21.11 |
+| Minecraft | 1.21.9 – 1.21.11 |
 | Загрузчик модов | Fabric Loader 0.16.0+ |
-| Обязательно | [Fabric API](https://modrinth.com/mod/fabric-api) |
 | Обязательно | [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl) |
 | Опционально | [Mod Menu](https://modrinth.com/mod/modmenu) — чтобы открыть экран настроек |
 
 ### Установка
 
-1. Установите Fabric Loader для Minecraft 1.21.11.
-2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.11.jar`) в папку `mods`.
-3. Установите также Fabric API и YetAnotherConfigLib.
+1. Установите Fabric Loader для Minecraft 1.21.9, 1.21.10 или 1.21.11.
+2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) в папку `mods`.
+3. Установите также YetAnotherConfigLib — Fabric API **не** нужен.
 4. Mod Menu не обязателен, но рекомендуется — через него открывается экран настроек.
 
 ### Где лежат файлы

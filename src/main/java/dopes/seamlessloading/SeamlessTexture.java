@@ -6,6 +6,7 @@ import com.mojang.blaze3d.textures.FilterMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -13,6 +14,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -238,12 +240,48 @@ public final class SeamlessTexture {
 	/**
 	 * Vanilla's {@link DynamicTexture} uses nearest neighbour filtering, which looks blocky when the
 	 * screenshot is scaled to a different resolution than it was taken at.
+	 *
+	 * <p>How the filtering is set changed over the versions the mod supports: 1.21.11 and newer have a
+	 * sampler cache, older ones a plain {@code setFilter} flag. Both are looked up reflectively, so a
+	 * jar built against the newest version still runs on the older ones. If neither exists the texture
+	 * keeps vanilla's nearest filtering: it still renders, it is just a bit blockier.
 	 */
 	private static class LinearDynamicTexture extends DynamicTexture {
 
 		LinearDynamicTexture(NativeImage image) {
 			super(() -> "Seamless image", image);
-			this.sampler = RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR);
+			applyLinearFilter(this);
+		}
+	}
+
+	private static void applyLinearFilter(AbstractTexture texture) {
+		if (!useSamplerCache(texture) && !useSetFilter(texture)) {
+			DopesSeamlessLoadingScreen.LOGGER.warn(
+					"[Seamless] This Minecraft version has no linear texture filtering, the image may look blocky");
+		}
+	}
+
+	/** 1.21.11 and newer: {@code RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR)}. */
+	private static boolean useSamplerCache(AbstractTexture texture) {
+		try {
+			Object cache = RenderSystem.class.getMethod("getSamplerCache").invoke(null);
+			Object sampler = cache.getClass().getMethod("getClampToEdge", FilterMode.class).invoke(cache, FilterMode.LINEAR);
+			Field field = AbstractTexture.class.getDeclaredField("sampler");
+			field.setAccessible(true);
+			field.set(texture, sampler);
+			return true;
+		} catch (Throwable ignored) {
+			return false;
+		}
+	}
+
+	/** Older versions: the plain {@code setFilter(blur, mipmap)} flag. */
+	private static boolean useSetFilter(AbstractTexture texture) {
+		try {
+			AbstractTexture.class.getMethod("setFilter", boolean.class, boolean.class).invoke(texture, true, false);
+			return true;
+		} catch (Throwable ignored) {
+			return false;
 		}
 	}
 }

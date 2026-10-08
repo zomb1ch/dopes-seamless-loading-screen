@@ -23,11 +23,10 @@
   ],
   "depends": {
     "fabricloader": ">=0.16.0",
-    "fabric": "*",
-    "minecraft": "=1.21.11",
+    "minecraft": "${minecraft_range}",
     "yet_another_config_lib_v3": ">=3.8.0"
   },
   "recommends": {
-    "modmenu": ">=17.0.0"
+    "modmenu": ">=16.0.0"
   }
 }
