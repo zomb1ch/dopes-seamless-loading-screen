@@ -14,12 +14,12 @@ public abstract class GameRendererMixin {
 	/**
 	 * Right after the world has been rendered (and before the HUD is drawn) the main render target
 	 * contains exactly the picture we want to save.
+	 *
+	 * <p>Hooked at the end of {@code renderLevel} instead of after the call inside {@code render}:
+	 * from 26.3 the level is rendered from {@code Minecraft#renderFrame}, so the old call site is gone.
 	 */
-	@Inject(
-			method = "render",
-			at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;renderLevel(Lnet/minecraft/client/DeltaTracker;)V", shift = At.Shift.AFTER)
-	)
-	private void dopes$captureScreenshot(DeltaTracker deltaTracker, boolean bl, CallbackInfo ci) {
+	@Inject(method = "renderLevel", at = @At("RETURN"))
+	private void dopes$captureScreenshot(DeltaTracker deltaTracker, CallbackInfo ci) {
 		SeamlessCapture.onFrameRendered();
 	}
 }
