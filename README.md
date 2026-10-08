@@ -1,14 +1,14 @@
 # dope's Seamless Loading Screen
 
-[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.11-62b47a?style=for-the-badge)](https://www.minecraft.net/)
+[![Minecraft](https://img.shields.io/badge/Minecraft-1.21.9_to_26.3-62b47a?style=for-the-badge)](https://www.minecraft.net/)
 [![Fabric](https://img.shields.io/badge/Loader-Fabric-dbd0b4?style=for-the-badge)](https://fabricmc.net/)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
 [![GitHub](https://img.shields.io/badge/GitHub-dopes--seamless--loading--screen-181717?style=for-the-badge&logo=github)](https://github.com/zomb1ch/dopes-seamless-loading-screen)
 
 **English** | [Русский](#русский)
 
-A client-side Fabric mod for **Minecraft 1.21.11** that turns leaving a world or a server and coming
-back into one smooth, seamless animated sequence, and gives the loading screen a fresh look. A
+A client-side Fabric mod for **Minecraft 1.21.9 – 26.3** that turns leaving a world or a server and
+coming back into one smooth, seamless animated sequence, and gives the loading screen a fresh look. A
 screenshot of the place you are leaving is taken on the way out, and on the way back in it fades in
 over the Minecraft menu, covers the whole load and melts into the world — so instead of a generic
 "Loading terrain..." screen you see where you are returning to.
@@ -52,10 +52,8 @@ over the Minecraft menu, covers the whole load and melts into the world — so i
 
 ### Supported Minecraft versions
 
-One jar covers **1.21.9, 1.21.10 and 1.21.11**. It is compiled against the newest of them; Fabric
-keeps its intermediary names stable across those versions, so the same file loads on all three.
-
-Other versions need their own build:
+Each Minecraft version line gets **its own jar** (the client APIs the mod hooks into change between
+them). The minimum supported version is **1.21.9**.
 
 | Versions | Why |
 |---|---|
@@ -80,7 +78,7 @@ servers that do not have it.
 
 ### Installation
 
-1. Install Fabric Loader for Minecraft 1.21.11.
+1. Install Fabric Loader for your Minecraft version.
 2. Drop the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) into
    your `mods` folder.
 3. Also install [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API is **not** needed.
@@ -143,7 +141,7 @@ several (comma separated) to build for a wider version range.
 
 ## Русский
 
-Клиентский мод для **Minecraft 1.21.11** на Fabric: превращает выход из мира или с сервера и
+Клиентский мод для **Minecraft 1.21.9 – 26.3** на Fabric: превращает выход из мира или с сервера и
 возвращение обратно в одну плавную бесшовную анимацию и обновляет вид экрана загрузки. Снимок того
 места, откуда вы уходите, делается на выходе, а при возвращении он плавно проявляется поверх меню
 Minecraft, держится всю загрузку и растворяется в мире — вместо безликого «Loading terrain…» вы
@@ -178,11 +176,8 @@ Minecraft, держится всю загрузку и растворяется 
 
 ### Поддерживаемые версии Minecraft
 
-Один jar покрывает **1.21.9, 1.21.10 и 1.21.11**. Он собирается против самой новой из них; Fabric
-сохраняет промежуточные (intermediary) имена между этими версиями, поэтому один и тот же файл
-загружается на всех трёх.
-
-Для других версий нужна своя сборка:
+Каждая линия версий Minecraft получает **свой jar** (клиентские API, за которые цепляется мод, между
+ними меняются). Минимальная поддерживаемая версия — **1.21.9**.
 
 | Версии | Почему |
 |---|---|
@@ -207,7 +202,7 @@ Minecraft, держится всю загрузку и растворяется 
 
 ### Установка
 
-1. Установите Fabric Loader для Minecraft 1.21.11.
+1. Установите Fabric Loader для своей версии Minecraft.
 2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) в папку
    `mods`.
 3. Установите также [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API **не** нужен.

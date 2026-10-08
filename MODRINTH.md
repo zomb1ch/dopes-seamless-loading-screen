@@ -51,31 +51,34 @@ does not have the mod.
 
 ## Supported Minecraft versions
 
-One jar covers **1.21.9, 1.21.10 and 1.21.11**. It is compiled against the newest of them; Fabric
-keeps its intermediary names stable across those versions, so the same file loads on all three.
+The mod is built **separately for each Minecraft version line**, because the client APIs it hooks into
+change between them. Download the file that matches your game:
 
-Other versions need their own build:
-
-| Versions | Why |
+| Your Minecraft | Download |
 |---|---|
-| 1.21 – 1.21.8 | **Not supported.** The mod needs `LevelLoadTracker` (added in 1.21.9), `Identifier`, `ARGB` and `RenderPipelines`. 1.21.9 is the minimum. |
-| 26.1 – 26.1.2 | A second jar, built by the `versions/26x` project: Minecraft 26.x ships unobfuscated, so it needs the no-remapping Loom and its own sources. |
-| 26.2 | Jar from the `versions/262x` project (unobfuscated 26.x line). |
-| 26.3 | Jar from the `versions/263x` project. 26.2 and 26.3 cannot share one jar: `RenderPipeline` moved packages between them. |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.0+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.0+26.3.jar` |
+| 1.21 – 1.21.8 | **Not supported.** The mod needs `LevelLoadTracker` (added in 1.21.9), `Identifier`, `ARGB` and `RenderPipelines`. **1.21.9 is the minimum.** |
+
+Why several files: 1.21.x is obfuscated, so the mod is remapped through Fabric's intermediary names,
+while 26.x ships unobfuscated and needs a build without remapping; and between 26.2 and 26.3
+`RenderPipeline` moved packages, which changes what the mod links against at runtime.
 
 ## Requirements
 
 | | |
 |---|---|
-| Minecraft | 1.21.9 – 1.21.11 |
+| Minecraft | 1.21.9 – 26.3 (see the table above) |
 | Mod loader | Fabric Loader 0.16.0+ |
 | Required | [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl) |
 | Optional | [Mod Menu](https://modrinth.com/mod/modmenu) — needed to open the settings screen |
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 1.21.9, 1.21.10 or 1.21.11.
-2. Put the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) into your `mods` folder.
+1. Install Fabric Loader for your Minecraft version.
+2. Put the jar that matches that version (see the table above) into your `mods` folder. Only one of them — these are alternative builds, not add-ons.
 3. Install YetAnotherConfigLib as well — Fabric API is **not** needed.
 4. Mod Menu is optional but recommended — the settings screen is opened through it.
 
@@ -186,32 +189,34 @@ modify and include in modpacks.
 
 ### Поддерживаемые версии Minecraft
 
-Один jar покрывает **1.21.9, 1.21.10 и 1.21.11**. Он собирается против самой новой из них; Fabric
-сохраняет промежуточные (intermediary) имена между этими версиями, поэтому один и тот же файл
-загружается на всех трёх.
+Мод собирается **отдельно под каждую линию версий Minecraft**, потому что клиентские API, за которые
+он цепляется, между ними меняются. Скачай файл, который подходит твоей игре:
 
-Для других версий нужна своя сборка:
-
-| Версии | Почему |
+| Твой Minecraft | Файл |
 |---|---|
-| 1.21 – 1.21.8 | **Не поддерживается.** Моду нужны `LevelLoadTracker` (появился в 1.21.9), `Identifier`, `ARGB` и `RenderPipelines`. Минимум — 1.21.9. |
-| 26.1 – 26.1.2 | Отдельный jar из проекта `versions/26x`: Minecraft 26.x необфусцирован, поэтому нужен Loom без remapping и свои исходники. |
-| 26.2 | Jar из проекта `versions/262x` (необфусцированная линия 26.x). |
-| 26.3 | Jar из проекта `versions/263x`. Один jar на 26.2 и 26.3 невозможен: между ними переехал `RenderPipeline`. |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.0+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.0+26.3.jar` |
+| 1.21 – 1.21.8 | **Не поддерживается.** Моду нужны `LevelLoadTracker` (появился в 1.21.9), `Identifier`, `ARGB` и `RenderPipelines`. **Минимум — 1.21.9.** |
+
+Почему файлов несколько: 1.21.x обфусцирован, поэтому мод ремапится через intermediary-имена Fabric, а
+26.x поставляется необфусцированным и требует сборки без remapping; кроме того между 26.2 и 26.3
+переехал `RenderPipeline`, из-за чего меняется то, к чему мод привязывается в рантайме.
 
 ### Требования
 
 | | |
 |---|---|
-| Minecraft | 1.21.9 – 1.21.11 |
+| Minecraft | 1.21.9 – 26.3 (см. таблицу выше) |
 | Загрузчик модов | Fabric Loader 0.16.0+ |
 | Обязательно | [YetAnotherConfigLib (YACL)](https://modrinth.com/mod/yacl) |
 | Опционально | [Mod Menu](https://modrinth.com/mod/modmenu) — чтобы открыть экран настроек |
 
 ### Установка
 
-1. Установите Fabric Loader для Minecraft 1.21.9, 1.21.10 или 1.21.11.
-2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar`) в папку `mods`.
+1. Установите Fabric Loader для своей версии Minecraft.
+2. Положите в папку `mods` тот jar, который подходит этой версии (см. таблицу выше). Только один — это альтернативные сборки, а не дополнения друг к другу.
 3. Установите также YetAnotherConfigLib — Fabric API **не** нужен.
 4. Mod Menu не обязателен, но рекомендуется — через него открывается экран настроек.
 
