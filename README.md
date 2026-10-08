@@ -68,7 +68,7 @@ Measurements and how to add a version: [`docs/VERSIONS.md`](docs/VERSIONS.md).
 
 | | |
 |---|---|
-| Minecraft | 1.21.9 – 1.21.11 |
+| Minecraft | 1.21.9 – 26.3 (one jar per version line, see above) |
 | Mod loader | Fabric Loader 0.16.0+ |
 | Required | YetAnotherConfigLib 3.8.0+ |
 | Optional | Mod Menu (to open the settings screen) |
@@ -192,7 +192,7 @@ Minecraft, держится всю загрузку и растворяется 
 
 | | |
 |---|---|
-| Minecraft | 1.21.9 – 1.21.11 |
+| Minecraft | 1.21.9 – 26.3 (свой jar на каждую линию, см. выше) |
 | Загрузчик модов | Fabric Loader 0.16.0+ |
 | Обязательно | YetAnotherConfigLib 3.8.0+ |
 | Опционально | Mod Menu (чтобы открыть экран настроек) |
