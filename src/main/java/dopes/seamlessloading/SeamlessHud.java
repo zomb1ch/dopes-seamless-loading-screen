@@ -41,13 +41,15 @@ public final class SeamlessHud {
 	/** Thickness of the progress bar. */
 	private static final int BAR_HEIGHT = 8;
 	/** How long one animation frame is shown. */
-	private static final long FRAME_MILLIS = 200L;
-	/** How much of the remaining distance the bar covers per tick, which keeps it smooth. */
-	private static final float BAR_SMOOTHING = 0.06F;
+	private static final long FRAME_MILLIS = 100L;
+	/** How much of the remaining distance the bar covers per second. */
+	private static final float BAR_SMOOTH_PER_SECOND = 2.0F;
+	/** Longest step the bar may take at once, so a lag spike cannot make it jump. */
+	private static final float BAR_MAX_STEP_SECONDS = 0.2F;
 	/** Opacity of the bar background (semi transparent black). */
 	private static final float BAR_BACKGROUND_ALPHA = 0.5F;
 	/** How long the bar may take to reach the end once the world is ready. */
-	private static final long FINISH_MILLIS = 400L;
+	private static final float FINISH_SECONDS = 0.4F;
 
 	private static boolean loaded;
 	private static Sprite loadingText;
@@ -56,12 +58,16 @@ public final class SeamlessHud {
 	private static Sprite connectingText;
 
 	private static float shownProgress;
+	/** Where the bar is heading, remembered so it can also be advanced while rendering. */
+	private static float targetProgress;
 	/** When the HUD started fading in, or 0 while it is not shown. */
 	private static long fadeStart;
+	/** When the bar was advanced the last time, used to move it with the clock. */
+	private static long lastAdvance;
 	/** {@code true} once the world is ready and the bar only has to catch up. */
 	private static boolean finishing;
-	/** When the catch up started. */
-	private static long finishStart;
+	/** Seconds spent catching up since {@link #finishing} was set. */
+	private static float finishElapsed;
 
 	private SeamlessHud() {
 	}
@@ -69,9 +75,11 @@ public final class SeamlessHud {
 	/** Restarts the bar and the fade, called when a new transition starts. */
 	public static void reset() {
 		shownProgress = 0.0F;
+		targetProgress = 0.0F;
 		fadeStart = 0L;
+		lastAdvance = 0L;
 		finishing = false;
-		finishStart = 0L;
+		finishElapsed = 0.0F;
 	}
 
 	/**
@@ -81,17 +89,32 @@ public final class SeamlessHud {
 	public static void startFinishing() {
 		if (!finishing) {
 			finishing = true;
-			finishStart = Util.getMillis();
+			finishElapsed = 0.0F;
 		}
 	}
 
-	/** Moves the shown value towards the target, never jumping and never going backwards. */
+	/** Remembers where the bar should go. It is moved by {@link #advance()}, not by this call. */
 	public static void tick(float target) {
+		targetProgress = target;
+		advance();
+	}
+
+	/**
+	 * Moves the bar towards its target. This is driven by the clock instead of by ticks or frames, so
+	 * a low tick rate or a heavy frame cannot make the bar stall, and calling it from both the tick
+	 * and the render is harmless.
+	 */
+	private static void advance() {
+		long now = Util.getMillis();
+		float delta = lastAdvance == 0L ? 0.0F : Math.min(BAR_MAX_STEP_SECONDS, (now - lastAdvance) / 1000.0F);
+		lastAdvance = now;
+
 		if (finishing) {
-			// The world is ready: reach the end within FINISH_MILLIS, but without jumping there in a
-			// single frame. The time based floor makes sure that slow or rare ticks cannot stall it.
-			float floor = Mth.clamp((float) (Util.getMillis() - finishStart) / FINISH_MILLIS, 0.0F, 1.0F);
-			shownProgress = Math.max(floor, shownProgress + (1.0F - shownProgress) * BAR_SMOOTHING);
+			// The world is ready: reach the end within FINISH_SECONDS, but without jumping there in a
+			// single step. The floor is what guarantees that the loading screen always closes.
+			finishElapsed += delta;
+			float floor = Mth.clamp(finishElapsed / FINISH_SECONDS, 0.0F, 1.0F);
+			shownProgress = Math.max(floor, towards(shownProgress, 1.0F, delta));
 			if (shownProgress > 0.999F) {
 				shownProgress = 1.0F;
 			}
@@ -99,29 +122,23 @@ public final class SeamlessHud {
 			return;
 		}
 
-		if (target < shownProgress) {
-			return;
+		if (targetProgress > shownProgress) {
+			shownProgress = towards(shownProgress, targetProgress, delta);
+			if (targetProgress - shownProgress < 0.0005F) {
+				shownProgress = targetProgress;
+			}
 		}
+	}
 
-		shownProgress += (target - shownProgress) * BAR_SMOOTHING;
-		if (target - shownProgress < 0.0005F) {
-			shownProgress = target;
-		}
+	/** Moves {@code from} towards {@code to} by the fraction that {@code delta} seconds allow. */
+	private static float towards(float from, float to, float delta) {
+		return from + (to - from) * Math.min(1.0F, BAR_SMOOTH_PER_SECOND * delta);
 	}
 
 	/** Whether the bar has reached the end; the loading screen waits for this before closing. */
 	public static boolean isFull() {
-		if (shownProgress >= 0.999F) {
-			return true;
-		}
-
-		// Safety net: never keep the loading screen open forever, even if the screen stops ticking.
-		if (finishing && Util.getMillis() - finishStart >= FINISH_MILLIS) {
-			shownProgress = 1.0F;
-			return true;
-		}
-
-		return false;
+		advance();
+		return shownProgress >= 0.999F;
 	}
 
 	/**
@@ -159,6 +176,7 @@ public final class SeamlessHud {
 			drawFrame(graphics, icon, width - MARGIN - icon.width(), iconY, fade);
 		}
 
+		advance();
 		drawBar(graphics, width, barTop, barBottom, fade);
 	}
 

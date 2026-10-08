@@ -29,10 +29,10 @@ public abstract class LevelLoadingScreenMixin {
 	private LevelLoadTracker loadTracker;
 
 	/**
-	 * How long a join waits for the world load report before falling back to the chunk based
-	 * progress. Singleplayer reports right away, a normal server never does.
+	 * How much of the bar the "preparing the world on the server" part takes up. The chunk part is
+	 * the long one, so it gets the rest.
 	 */
-	private static final long WORLD_PROGRESS_GRACE_MILLIS = 2000L;
+	private static final float WORLD_PHASE_END = 0.25F;
 
 	/**
 	 * Advances the transition overlay while the loading screen is up. The world load loop ticks the
@@ -98,27 +98,21 @@ public abstract class LevelLoadingScreenMixin {
 	}
 
 	/**
-	 * Progress of the bar: the first half covers loading the world, the second half covers waiting
-	 * for all chunks, so the bar only fills up completely once the world is really ready.
+	 * Progress of the bar. While the server is still preparing the world only that part can be shown;
+	 * as soon as the client has the world, the chunks streaming in take over, which is the long part
+	 * the player actually sits through.
 	 */
 	private float progress() {
-		boolean hasWorldProgress = this.loadTracker != null && this.loadTracker.hasProgress();
-		if (hasWorldProgress) {
-			float world = this.loadTracker.serverProgress();
-			if (world < 1.0F) {
-				return world * 0.5F;
-			}
-		} else if (SeamlessSession.elapsedMs() < WORLD_PROGRESS_GRACE_MILLIS) {
-			// The world load report has not arrived yet: keep the bar at the start.
-			return 0.0F;
-		}
-
-		// Either the world is done or the server never reports a load (a normal server join): follow
-		// the chunks instead of sitting at zero for the whole join.
 		int loaded = SeamlessSession.loadedChunks();
 		int expected = SeamlessSession.expectedChunks();
-		float chunks = loaded < 0 || expected <= 0 ? 0.0F : Mth.clamp((float) loaded / expected, 0.0F, 1.0F);
-		return 0.5F + chunks * 0.5F;
+		if (loaded < 0 || expected <= 0) {
+			// No client world yet: the server progress is all there is.
+			float world = this.loadTracker != null && this.loadTracker.hasProgress() ? this.loadTracker.serverProgress() : 0.0F;
+			return Mth.clamp(world, 0.0F, 1.0F) * WORLD_PHASE_END;
+		}
+
+		float chunks = Mth.clamp((float) loaded / expected, 0.0F, 1.0F);
+		return WORLD_PHASE_END + chunks * (1.0F - WORLD_PHASE_END);
 	}
 
 	/** Replaces the vanilla "close and show the world" with our fade animation. */
