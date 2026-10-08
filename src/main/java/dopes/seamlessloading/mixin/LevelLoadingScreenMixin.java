@@ -29,6 +29,12 @@ public abstract class LevelLoadingScreenMixin {
 	private LevelLoadTracker loadTracker;
 
 	/**
+	 * How long a join waits for the world load report before falling back to the chunk based
+	 * progress. Singleplayer reports right away, a normal server never does.
+	 */
+	private static final long WORLD_PROGRESS_GRACE_MILLIS = 2000L;
+
+	/**
 	 * Advances the transition overlay while the loading screen is up. The world load loop ticks the
 	 * loading screen without running the client tick, so without this the overlay would never fade
 	 * out over the loading screen. Deferred actions are never run from here.
@@ -96,11 +102,19 @@ public abstract class LevelLoadingScreenMixin {
 	 * for all chunks, so the bar only fills up completely once the world is really ready.
 	 */
 	private float progress() {
-		float world = this.loadTracker != null && this.loadTracker.hasProgress() ? this.loadTracker.serverProgress() : 0.0F;
-		if (world < 1.0F) {
-			return world * 0.5F;
+		boolean hasWorldProgress = this.loadTracker != null && this.loadTracker.hasProgress();
+		if (hasWorldProgress) {
+			float world = this.loadTracker.serverProgress();
+			if (world < 1.0F) {
+				return world * 0.5F;
+			}
+		} else if (SeamlessSession.elapsedMs() < WORLD_PROGRESS_GRACE_MILLIS) {
+			// The world load report has not arrived yet: keep the bar at the start.
+			return 0.0F;
 		}
 
+		// Either the world is done or the server never reports a load (a normal server join): follow
+		// the chunks instead of sitting at zero for the whole join.
 		int loaded = SeamlessSession.loadedChunks();
 		int expected = SeamlessSession.expectedChunks();
 		float chunks = loaded < 0 || expected <= 0 ? 0.0F : Mth.clamp((float) loaded / expected, 0.0F, 1.0F);
@@ -110,6 +124,14 @@ public abstract class LevelLoadingScreenMixin {
 	/** Replaces the vanilla "close and show the world" with our fade animation. */
 	@Inject(method = "onClose", at = @At("HEAD"), cancellable = true)
 	private void dopes$fadeOut(CallbackInfo ci) {
+		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning() && !SeamlessHud.isFull()) {
+			// The world is ready but our progress bar has not caught up yet. Keep the screen open for
+			// the last few ticks so the bar always finishes smoothly instead of jumping to the end.
+			SeamlessHud.startFinishing();
+			ci.cancel();
+			return;
+		}
+
 		if (!SeamlessSession.isActive()) {
 			return;
 		}

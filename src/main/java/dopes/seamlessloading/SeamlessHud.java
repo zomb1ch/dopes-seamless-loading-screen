@@ -33,9 +33,11 @@ public final class SeamlessHud {
 	}
 
 	/** One source pixel is drawn as this many GUI pixels. */
-	private static final int SCALE = 3;
+	private static final int SCALE = 5;
 	/** Equal margin from the left, right and bottom screen edges. */
 	private static final int MARGIN = 20;
+	/** Gap between the progress bar and the text / icon above it. */
+	private static final int TEXT_GAP = 10;
 	/** Thickness of the progress bar. */
 	private static final int BAR_HEIGHT = 8;
 	/** How long one animation frame is shown. */
@@ -44,6 +46,8 @@ public final class SeamlessHud {
 	private static final float BAR_SMOOTHING = 0.06F;
 	/** Opacity of the bar background (semi transparent black). */
 	private static final float BAR_BACKGROUND_ALPHA = 0.5F;
+	/** How long the bar may take to reach the end once the world is ready. */
+	private static final long FINISH_MILLIS = 400L;
 
 	private static boolean loaded;
 	private static Sprite loadingText;
@@ -54,6 +58,10 @@ public final class SeamlessHud {
 	private static float shownProgress;
 	/** When the HUD started fading in, or 0 while it is not shown. */
 	private static long fadeStart;
+	/** {@code true} once the world is ready and the bar only has to catch up. */
+	private static boolean finishing;
+	/** When the catch up started. */
+	private static long finishStart;
 
 	private SeamlessHud() {
 	}
@@ -62,10 +70,35 @@ public final class SeamlessHud {
 	public static void reset() {
 		shownProgress = 0.0F;
 		fadeStart = 0L;
+		finishing = false;
+		finishStart = 0L;
+	}
+
+	/**
+	 * The world is ready, so the bar only has to catch up now. Called right before the loading screen
+	 * would close; it is held open until {@link #isFull()} is {@code true}.
+	 */
+	public static void startFinishing() {
+		if (!finishing) {
+			finishing = true;
+			finishStart = Util.getMillis();
+		}
 	}
 
 	/** Moves the shown value towards the target, never jumping and never going backwards. */
 	public static void tick(float target) {
+		if (finishing) {
+			// The world is ready: reach the end within FINISH_MILLIS, but without jumping there in a
+			// single frame. The time based floor makes sure that slow or rare ticks cannot stall it.
+			float floor = Mth.clamp((float) (Util.getMillis() - finishStart) / FINISH_MILLIS, 0.0F, 1.0F);
+			shownProgress = Math.max(floor, shownProgress + (1.0F - shownProgress) * BAR_SMOOTHING);
+			if (shownProgress > 0.999F) {
+				shownProgress = 1.0F;
+			}
+
+			return;
+		}
+
 		if (target < shownProgress) {
 			return;
 		}
@@ -78,7 +111,17 @@ public final class SeamlessHud {
 
 	/** Whether the bar has reached the end; the loading screen waits for this before closing. */
 	public static boolean isFull() {
-		return shownProgress >= 0.999F;
+		if (shownProgress >= 0.999F) {
+			return true;
+		}
+
+		// Safety net: never keep the loading screen open forever, even if the screen stops ticking.
+		if (finishing && Util.getMillis() - finishStart >= FINISH_MILLIS) {
+			shownProgress = 1.0F;
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -102,7 +145,7 @@ public final class SeamlessHud {
 
 		int barBottom = height - MARGIN;
 		int barTop = barBottom - BAR_HEIGHT;
-		int textY = barTop - MARGIN - text.height();
+		int textY = barTop - TEXT_GAP - text.height();
 
 		drawFrame(graphics, text, MARGIN, textY, fade);
 
