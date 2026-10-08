@@ -116,7 +116,7 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 | Blur Animation Speed | 50% | How much of the fade the blur animation takes. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation (the blur stays until the end of the fade). The slideshow never animates its blur. |
 | Background Dim | 35% | Darkening over the image. It is applied at once, it does not fade in. |
 | Fade Duration | 800 ms | How long the screenshot takes to fade out once the world is ready. |
-| Image Resolution | 100% | Resolution the screenshot is rendered at. The image is always stretched over the whole screen, a lower value only reduces quality and memory usage. |
+| Image Resolution | 100% | Resolution the screenshot is sampled at. The picture is always scaled to the screen, so a lower value only makes it softer. |
 | Min Show Time | 2000 ms | Keep the loading screen visible for at least this long. |
 | Max Show Time | 30000 ms | Never keep the loading screen open longer than this, even if chunks are still loading. |
 | Slideshow Speed | 5000 ms | How often slideshow images change. |
@@ -244,7 +244,7 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 | Скорость анимации размытия | 50% | Какую часть затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации (размытие держится до конца). В слайд-шоу анимация размытия не работает. |
 | Затемнение фона | 35% | Затемнение поверх картинки. Применяется сразу целиком, плавно не появляется. |
 | Время fade анимации | 800 мс | Сколько времени скриншот исчезает, когда мир уже готов. |
-| Разрешение картинки | 100% | Разрешение, в котором скриншот отрисовывается. Картинка всегда растягивается на весь экран, меньшее значение только снижает качество и расход памяти. |
+| Разрешение картинки | 100% | Разрешение, в котором берётся скриншот. Картинка всегда масштабируется под экран, меньшее значение только делает её мягче. |
 | Мин. время показа | 2000 мс | Держать экран загрузки видимым минимум столько. |
 | Макс. время показа | 30000 мс | Не держать экран загрузки дольше этого, даже если чанки всё ещё грузятся. |
 | Скорость смены слайд-шоу | 5000 мс | Как часто сменяются картинки слайд-шоу. |

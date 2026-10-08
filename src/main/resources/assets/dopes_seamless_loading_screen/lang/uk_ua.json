@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Швидкість анімації розмиття (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Яку частину згасання займає зникнення розмиття. 100% — розмиття зникає рівно в кінці згасання, 50% — удвічі швидше, 0% — без анімації (розмиття тримається до кінця згасання). Слайд-шоу ніколи не анімує розмиття: воно тримається до кінця згасання.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Роздільність зображення (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Роздільність, у якій знімок малюється на екрані завантаження: 100% — як є, 50% — удвічі менше. Зображення завжди розтягується на весь екран; менше значення лише знижує якість і витрати пам'яті.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Роздільність, у якій береться знімок для екрана завантаження: 100% — як є, 50% — удвічі менше. Зображення завжди масштабується під екран, менше значення лише робить його м'якшим.",
 
   "dopes_seamless_loading_screen.config.timing": "Таймінги",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Мін. час показу (мс)",

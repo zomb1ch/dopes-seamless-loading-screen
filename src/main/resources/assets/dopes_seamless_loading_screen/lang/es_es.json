@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Velocidad de la animación de desenfoque (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Qué parte del fundido tarda el desenfoque en desaparecer. 100% = el desenfoque se va justo al terminar el fundido, 50% = el doble de rápido, 0% = sin animación (el desenfoque se queda hasta el final del fundido). La presentación nunca anima su desenfoque: se queda hasta el final del fundido.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Resolución de la imagen (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolución a la que se dibuja la captura en la pantalla de carga: 100% = tal cual, 50% = la mitad. La imagen siempre se estira por toda la pantalla; un valor menor solo reduce la calidad y el uso de memoria.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolución a la que se toma la captura en la pantalla de carga: 100% = tal cual, 50% = la mitad. La imagen siempre se escala a la pantalla; un valor menor solo la hace más suave.",
 
   "dopes_seamless_loading_screen.config.timing": "Tiempos",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Tiempo mínimo en pantalla (ms)",

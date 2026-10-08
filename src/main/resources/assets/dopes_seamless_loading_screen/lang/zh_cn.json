@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "模糊动画速度（%）",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "模糊消失占整个淡出的比例。100% = 模糊恰好在淡出结束时消失，50% = 快一倍，0% = 无动画（模糊一直保持到淡出结束）。幻灯片从不播放模糊动画：模糊会保持到淡出结束。",
   "dopes_seamless_loading_screen.config.display.imageSize": "图像分辨率（%）",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "截图在加载界面上渲染的分辨率：100% = 原样，50% = 一半。图像始终拉伸铺满整个屏幕，较低的值只会降低质量和内存占用。",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "截图在加载界面上采样的分辨率：100% = 原样，50% = 一半。图像始终缩放到屏幕大小，较低的值只会让它更柔和。",
 
   "dopes_seamless_loading_screen.config.timing": "时间",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "最短显示时间（毫秒）",

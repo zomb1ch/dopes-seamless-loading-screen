@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Скорость анимации размытия (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Какую часть анимации затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации (размытие остаётся до конца затухания). В слайд-шоу анимация размытия не работает: размытие держится до конца затухания.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Разрешение картинки (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Разрешение, в котором скриншот отрисовывается на экране загрузки: 100% — как есть, 50% — вдвое меньше. Картинка всегда растягивается на весь экран, меньшее значение только снижает качество и расход памяти.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Разрешение, в котором берётся скриншот для экрана загрузки: 100% — как есть, 50% — вдвое меньше. Картинка всегда масштабируется под экран, меньшее значение только делает её мягче.",
   
   "dopes_seamless_loading_screen.config.timing": "Тайминги",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Мин. время показа (мс)",

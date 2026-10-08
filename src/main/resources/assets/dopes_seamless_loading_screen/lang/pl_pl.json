@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Szybkość animacji rozmycia (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Jaką część przenikania zajmuje zniknięcie rozmycia. 100% = rozmycie znika dokładnie na końcu przenikania, 50% = dwa razy szybciej, 0% = bez animacji (rozmycie zostaje do końca przenikania). Pokaz slajdów nigdy nie animuje rozmycia: zostaje ono do końca przenikania.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Rozdzielczość obrazu (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Rozdzielczość, w jakiej zrzut ekranu jest rysowany na ekranie ładowania: 100% = tak jak jest, 50% = o połowę. Obraz jest zawsze rozciągany na cały ekran; niższa wartość obniża tylko jakość i zużycie pamięci.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Rozdzielczość, w jakiej zrzut ekranu jest próbkowany na ekranie ładowania: 100% = tak jak jest, 50% = o połowę. Obraz jest zawsze skalowany do ekranu; niższa wartość tylko go zmiękcza.",
 
   "dopes_seamless_loading_screen.config.timing": "Czasy",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Min. czas pokazywania (ms)",

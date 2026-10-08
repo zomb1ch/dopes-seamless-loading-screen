@@ -25,13 +25,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  * is nearest neighbour for minification, which would alias the picture.
  *
  * <p>If the user configured a blur, the image is also stored once per blur level. Level {@code n} is
- * the image averaged over blocks of {@code 2^n} pixels and interpolated back to the original size,
- * so the levels get blurrier step by step. Drawing blends two neighbouring levels, which is what
- * makes the blur radius grow and shrink smoothly instead of cross fading between a sharp and a mushy
- * image.
+ * the image blurred with a box blur whose radius doubles from level to level, so the levels get
+ * blurrier step by step. Drawing blends two neighbouring levels, which is what makes the blur radius
+ * grow and shrink smoothly instead of cross fading between a sharp and a mushy image.
  *
- * <p>All resizing is plain pixel arithmetic on purpose: {@link NativeImage#resizeSubRectTo} is a
- * point sample, and the aliasing it leaves behind stays visible as stair steps in the blurred image.
+ * <p>All resizing and blurring is plain pixel arithmetic on purpose: {@link NativeImage#resizeSubRectTo}
+ * is a point sample, and the aliasing it leaves behind stays visible as stair steps in the blurred
+ * image.
  */
 public final class SeamlessImage {
 
@@ -39,6 +39,9 @@ public final class SeamlessImage {
 
 	/** How many blur levels the strongest setting generates. */
 	private static final int MAX_BLUR_LEVELS = 5;
+
+	/** How often each blur level is blurred; three passes look like a gaussian instead of a box. */
+	private static final int BLUR_ITERATIONS = 3;
 
 	private final Identifier sharpId;
 	/** Blur levels, weakest first. Empty when the blur is disabled. */
@@ -119,17 +122,17 @@ public final class SeamlessImage {
 
 	/**
 	 * Scales the image to the size it is drawn at: the screen is covered completely, so the result is
-	 * as large as the window (minus whatever is cut off when the aspect ratios differ). It is never
-	 * enlarged past its own resolution, a smaller picture would only get softer.
+	 * as large as the window (minus whatever is cut off when the aspect ratios differ). A smaller
+	 * picture is enlarged here, in software, because a texture smaller than the area it covers is
+	 * magnified by the GPU with nearest neighbour filtering - which is what turns a low resolution
+	 * screenshot or placeholder into big visible pixels.
 	 */
 	private static NativeImage fit(NativeImage source, float ratio, int imageSize) {
-		int originalWidth = source.getWidth();
-		int originalHeight = source.getHeight();
 		NativeImage working = reduce(source, imageSize);
 
 		int[] rect = SeamlessBackground.coverRect(windowWidth(), windowHeight(), ratio);
-		int targetWidth = Math.min(rect[2], originalWidth);
-		int targetHeight = Math.min(rect[3], originalHeight);
+		int targetWidth = Math.max(1, rect[2]);
+		int targetHeight = Math.max(1, rect[3]);
 
 		if (working.getWidth() == targetWidth && working.getHeight() == targetHeight) {
 			return working;
@@ -270,18 +273,99 @@ public final class SeamlessImage {
 	}
 
 	/**
-	 * Level {@code level}: the image averaged over blocks of {@code 2^level} pixels and interpolated
-	 * back to its own size. Averaging alone already removes the detail, the interpolation is what keeps
-	 * the result smooth instead of blocky.
+	 * Level {@code level}: the image blurred with a box blur whose radius is {@code 2^(level - 1)}
+	 * pixels, so the levels get blurrier step by step. The blur is repeated a few times, which turns
+	 * the square kernel of a single pass into something that looks like a round gaussian.
+	 *
+	 * <p>Blurring the image is what keeps the levels smooth: averaging the picture down and
+	 * interpolating it back up (what the mod did before) leaves one visible cell per pixel of the
+	 * small version, and those cells are exactly the "big pixels" it looked like.
 	 */
 	private static NativeImage blur(NativeImage source, int level) {
-		int width = Math.max(1, source.getWidth() >> level);
-		int height = Math.max(1, source.getHeight() >> level);
+		int width = source.getWidth();
+		int height = source.getHeight();
+		int[] pixels = new int[width * height];
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				pixels[y * width + x] = source.getPixel(x, y);
+			}
+		}
 
-		NativeImage smaller = downscale(source, width, height);
-		NativeImage result = upscale(smaller, source.getWidth(), source.getHeight());
-		smaller.close();
+		boxBlur(pixels, width, height, 1 << (level - 1));
+
+		NativeImage result = new NativeImage(width, height, false);
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				result.setPixel(x, y, pixels[y * width + x]);
+			}
+		}
+
 		return result;
+	}
+
+	/**
+	 * Separable box blur: every pass averages a window of {@code 2 * radius + 1} pixels with a
+	 * running sum, so the cost does not depend on the radius. The window is clamped at the borders,
+	 * which keeps the edges of the picture from darkening.
+	 */
+	private static void boxBlur(int[] pixels, int width, int height, int radius) {
+		int[] pass = new int[pixels.length];
+		int count = 2 * radius + 1;
+
+		for (int iteration = 0; iteration < BLUR_ITERATIONS; iteration++) {
+			for (int y = 0; y < height; y++) {
+				int row = y * width;
+				int alpha = 0;
+				int red = 0;
+				int green = 0;
+				int blue = 0;
+				for (int x = -radius; x <= radius; x++) {
+					int pixel = pixels[row + clamp(x, width)];
+					alpha += pixel >>> 24;
+					red += pixel >>> 16 & 0xFF;
+					green += pixel >>> 8 & 0xFF;
+					blue += pixel & 0xFF;
+				}
+
+				for (int x = 0; x < width; x++) {
+					pass[row + x] = alpha / count << 24 | red / count << 16 | green / count << 8 | blue / count;
+					int entering = pixels[row + clamp(x + radius + 1, width)];
+					int leaving = pixels[row + clamp(x - radius, width)];
+					alpha += (entering >>> 24) - (leaving >>> 24);
+					red += (entering >>> 16 & 0xFF) - (leaving >>> 16 & 0xFF);
+					green += (entering >>> 8 & 0xFF) - (leaving >>> 8 & 0xFF);
+					blue += (entering & 0xFF) - (leaving & 0xFF);
+				}
+			}
+
+			for (int x = 0; x < width; x++) {
+				int alpha = 0;
+				int red = 0;
+				int green = 0;
+				int blue = 0;
+				for (int y = -radius; y <= radius; y++) {
+					int pixel = pass[clamp(y, height) * width + x];
+					alpha += pixel >>> 24;
+					red += pixel >>> 16 & 0xFF;
+					green += pixel >>> 8 & 0xFF;
+					blue += pixel & 0xFF;
+				}
+
+				for (int y = 0; y < height; y++) {
+					pixels[y * width + x] = alpha / count << 24 | red / count << 16 | green / count << 8 | blue / count;
+					int entering = pass[clamp(y + radius + 1, height) * width + x];
+					int leaving = pass[clamp(y - radius, height) * width + x];
+					alpha += (entering >>> 24) - (leaving >>> 24);
+					red += (entering >>> 16 & 0xFF) - (leaving >>> 16 & 0xFF);
+					green += (entering >>> 8 & 0xFF) - (leaving >>> 8 & 0xFF);
+					blue += (entering & 0xFF) - (leaving & 0xFF);
+				}
+			}
+		}
+	}
+
+	private static int clamp(int value, int size) {
+		return value < 0 ? 0 : Math.min(value, size - 1);
 	}
 
 	/**

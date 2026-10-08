@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Geschwindigkeit der Unschärfeanimation (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Welchen Teil der Blende die Unschärfe zum Verschwinden braucht. 100% = die Unschärfe ist genau am Ende der Blende weg, 50% = doppelt so schnell, 0% = keine Animation (die Unschärfe bleibt bis zum Ende der Blende). Die Slideshow animiert ihre Unschärfe nie: sie bleibt bis zum Ende der Blende.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Bildauflösung (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Auflösung, in der der Screenshot auf dem Ladebildschirm gerendert wird: 100% = wie er ist, 50% = halb. Das Bild wird immer über den ganzen Bildschirm gestreckt, ein niedrigerer Wert senkt nur Qualität und Speicherverbrauch.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Auflösung, in der der Screenshot für den Ladebildschirm abgetastet wird: 100% = wie er ist, 50% = halb. Das Bild wird immer auf den Bildschirm skaliert, ein niedrigerer Wert macht es nur weicher.",
 
   "dopes_seamless_loading_screen.config.timing": "Zeitsteuerung",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Min. Anzeigezeit (ms)",

@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Vitesse de l'animation du flou (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Part du fondu pendant laquelle le flou disparaît. 100% = le flou a disparu exactement à la fin du fondu, 50% = deux fois plus vite, 0% = aucune animation (le flou reste jusqu'à la fin du fondu). Le diaporama n'anime jamais son flou : il reste jusqu'à la fin du fondu.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Résolution de l'image (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Résolution à laquelle la capture est dessinée sur l'écran de chargement : 100% = telle quelle, 50% = de moitié. L'image est toujours étirée sur tout l'écran ; une valeur plus basse ne réduit que la qualité et l'usage de mémoire.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Résolution à laquelle la capture est échantillonnée sur l'écran de chargement : 100% = telle quelle, 50% = de moitié. L'image est toujours mise à l'échelle de l'écran ; une valeur plus basse la rend seulement plus douce.",
 
   "dopes_seamless_loading_screen.config.timing": "Minutage",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Durée d'affichage minimale (ms)",

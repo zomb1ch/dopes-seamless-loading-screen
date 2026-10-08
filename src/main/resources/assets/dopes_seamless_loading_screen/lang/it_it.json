@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Velocità dell'animazione della sfocatura (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Quanta parte della dissolvenza impiega la sfocatura a sparire. 100% = la sfocatura sparisce esattamente alla fine della dissolvenza, 50% = il doppio più veloce, 0% = nessuna animazione (la sfocatura resta fino alla fine della dissolvenza). La presentazione non anima mai la sua sfocatura: resta fino alla fine della dissolvenza.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Risoluzione dell'immagine (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Risoluzione con cui lo screenshot viene disegnato sulla schermata di caricamento: 100% = così com'è, 50% = metà. L'immagine viene sempre stirata su tutto lo schermo; un valore più basso riduce solo qualità e memoria usata.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Risoluzione con cui lo screenshot viene campionato sulla schermata di caricamento: 100% = così com'è, 50% = metà. L'immagine viene sempre scalata allo schermo; un valore più basso la rende solo più morbida.",
 
   "dopes_seamless_loading_screen.config.timing": "Tempi",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Tempo minimo di visualizzazione (ms)",

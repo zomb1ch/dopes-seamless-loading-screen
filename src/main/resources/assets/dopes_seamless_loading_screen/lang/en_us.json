@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Blur Animation Speed (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "How much of the fade animation the blur takes to disappear. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation (the blur stays until the end of the fade). The slideshow never animates its blur: the blur stays until the end of the fade.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Image Resolution (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolution the screenshot is rendered at on the loading screen: 100% = as is, 50% = half. The image is always stretched over the whole screen, a lower value only reduces quality and memory usage.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolution the screenshot is sampled at on the loading screen: 100% = as is, 50% = half. The picture is always scaled to the screen, a lower value only makes it softer.",
 
   "dopes_seamless_loading_screen.config.timing": "Timing",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Min Show Time (ms)",

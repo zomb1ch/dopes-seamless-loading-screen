@@ -34,7 +34,7 @@
   "dopes_seamless_loading_screen.config.display.blurSpeed": "Velocidade da animação do desfoque (%)",
   "dopes_seamless_loading_screen.config.display.blurSpeed.description": "Quanto do fade o desfoque leva para desaparecer. 100% = o desfoque some exatamente no fim do fade, 50% = duas vezes mais rápido, 0% = sem animação (o desfoque fica até o fim do fade). A apresentação nunca anima o desfoque: ele fica até o fim do fade.",
   "dopes_seamless_loading_screen.config.display.imageSize": "Resolução da imagem (%)",
-  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolução em que a captura é desenhada na tela de carregamento: 100% = como está, 50% = metade. A imagem é sempre esticada por toda a tela; um valor menor só reduz qualidade e uso de memória.",
+  "dopes_seamless_loading_screen.config.display.imageSize.description": "Resolução em que a captura é amostrada na tela de carregamento: 100% = como está, 50% = metade. A imagem é sempre dimensionada para a tela; um valor menor só a deixa mais suave.",
 
   "dopes_seamless_loading_screen.config.timing": "Tempos",
   "dopes_seamless_loading_screen.config.timing.minShowTime": "Tempo mínimo na tela (ms)",
