@@ -1,0 +1,140 @@
+plugins {
+	// Для MC 1.21.x нужен 'fabric-loom' (с intermediary remapping).
+	// 'net.fabricmc.fabric-loom' — вариант БЕЗ remapping (только для MC 26.x).
+	id 'fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+repositories {
+	// Modrinth Maven — YetAnotherConfigLib и ModMenu
+	maven {
+		name = 'Modrinth'
+		url = 'https://api.modrinth.com/maven'
+		content {
+			includeGroup 'maven.modrinth'
+		}
+	}
+
+	mavenCentral()
+
+	// Quilt parsers (зависимость YACL) — нужны только для запуска в dev-окружении
+	maven {
+		name = 'Quilt'
+		url = 'https://maven.quiltmc.org/repository/release'
+	}
+}
+
+loom {
+	// Клиентский мод — один source set, без разделения client/server
+	mods {
+		"${mod_id}" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+group = project.maven_group
+
+// Версии Minecraft, под которые собирается мод (minecraft_versions в gradle.properties, через
+// запятую). Сборка идёт против ПОСЛЕДНЕЙ версии из списка: Fabric Loader сохраняет промежуточные
+// (intermediary) имена между версиями, поэтому один jar работает и на более старых версиях из
+// списка. Имя файла и зависимость minecraft в fabric.mod.json собираются из этого же списка.
+def minecraftVersionList = project.minecraft_versions.split(',')
+		.collect { it.trim() }
+		.findAll { !it.isEmpty() }
+def minecraftRange = ">=${minecraftVersionList.first()} <=${minecraftVersionList.last()}"
+
+version = "${project.mod_version}+${minecraftVersionList.join('-')}"
+
+dependencies {
+	// Minecraft + Mojang official mappings (через intermediary)
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+
+	// modImplementation (а не implementation) — Loom ремапит мод-жарки с intermediary на наши маппинги
+	// и заодно добавляет sponge-mixin в classpath для компиляции миксинов.
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API не нужен: мод использует только Fabric Loader (ClientModInitializer, FabricLoader).
+	// Убрав зависимость, мод меньше привязан к конкретной версии Minecraft.
+
+	// YACL (конфиг) — обязательная зависимость
+	modImplementation "maven.modrinth:yacl:${project.yacl_version}"
+
+	// ModMenu — только для компиляции entrypoint; в рантайме опционален
+	modCompileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
+
+	// YACL поставляет эти библиотеки как nested-jars (JiJ). В dev-окружении Fabric Loader
+	// их не распаковывает, поэтому добавляем их вручную — в собранный мод они не попадают.
+	implementation "org.quiltmc.parsers:json:0.2.1"
+	implementation "org.quiltmc.parsers:gson:0.2.1"
+	implementation "com.twelvemonkeys.common:common-image:3.12.0"
+	implementation "com.twelvemonkeys.common:common-io:3.12.0"
+	implementation "com.twelvemonkeys.common:common-lang:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-core:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-metadata:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-webp:3.12.0"
+}
+
+processResources {
+	def modVersion = project.mod_version
+	inputs.property "mod_version", modVersion
+	// Без этого Gradle считает задачу актуальной и оставляет в jar старый диапазон версий.
+	inputs.property "minecraft_range", minecraftRange
+
+	filesMatching("fabric.mod.json") {
+		expand "mod_version": modVersion, "minecraft_range": minecraftRange
+	}
+
+	// The sprite sheets live in ./sprites; bundle them into the mod resources.
+	from("../../sprites") {
+		into "assets/${mod_id}/gui"
+		include "*.png"
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	// Minecraft 1.21.11 работает на Java 21
+	it.options.release = 21
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	// Loom сам прикрепит sourcesJar к задаче build
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	from("../../LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}" }
+	}
+}
+
+// configure the maven publication
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing your artifact, not for
+	// retrieving dependencies.
+	repositories {
+		// Add repositories to publish to here.
+		// Notice: This block does NOT have the same function as the block in the top level.
+		// The repositories here will be used for publishing your artifact, not for
+		// retrieving dependencies.
+	}
+}
+
+
+
+sourceSets {
+	main {
+		resources.srcDirs = ['../../src/main/resources', 'src/main/resources']
+	}
+}

@@ -111,6 +111,35 @@ What this line changed, and how it is handled:
 
 Every mixin target is unchanged from 26.1, so no injection needed touching.
 
+## Going below 1.21.9 (not done)
+
+1.21.1 – 1.21.8 is **not a shim**: the loading screen integration there is built differently, so it
+needs its own implementation.
+
+| Piece | 1.21.9+ | 1.21.5 – 1.21.8 | 1.21.1 – 1.21.4 |
+|---|---|---|---|
+| identifier type | `Identifier` | `ResourceLocation` | `ResourceLocation` |
+| `Util` | `net.minecraft.util.Util` | `net.minecraft.Util` | `net.minecraft.Util` |
+| text drawing | `GuiGraphicsExtractor#centeredText` | `GuiGraphics#drawCenteredString` | `GuiGraphics#drawCenteredString` |
+| progress source | `LevelLoadTracker` (`hasProgress`, `serverProgress`) | `LevelLoadStatusManager` (`levelReady` only, no progress) | same |
+| loading screen | `reason`, `loadTracker`, `tick`, `onClose` | no `reason`/`loadTracker`/`tick`/`onClose` — only `render`/`removed` | same |
+| quit hook | `Minecraft#disconnectFromWorld(Component)` | `Minecraft#disconnect(Screen, boolean)` / `disconnectWithSavingScreen()` | same |
+| `ARGB`, `RenderPipelines` | present | present | **missing** (pre-1.21.5 rendering) |
+
+Measured with `compileJava`:
+
+| Target | Errors | Cause |
+|---|---|---|
+| 1.21.5 | 124 | the renames + the loading screen integration |
+| 1.21.6 | 124 | the same |
+| 1.21.8 | 26 | after the renames (see `versions/1218x`) only the integration is left: `LevelLoadingScreen.Reason` (12×), `LevelLoadTracker` (8×), `ResourceLocation()` (4×), `disconnectFromWorld` (2×) |
+| 1.21.4 | 144 | the above plus `ARGB`/`RenderPipelines` |
+| 1.21.1 | 166 | the same as 1.21.4 |
+
+`versions/1218x` (1.21.5 – 1.21.8) already exists with the renames applied, but **does not compile
+yet**: the loading screen has to be driven from `LevelLoadStatusManager` and the HUD ticked from
+`Minecraft#tick` (the screen has no `tick` there).
+
 ## Verification
 
 Two independent checks were run for the 1.21.9 – 1.21.11 range:
