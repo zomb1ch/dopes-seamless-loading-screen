@@ -9,8 +9,7 @@ three.
 | Versions | Status | Why |
 |---|---|---|
 | **1.21.9 – 1.21.11** | **Supported by the root jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
-| **1.21.6 – 1.21.8** | **Supported by the `versions/1218x` jar** | Older naming (`ResourceLocation`, `net.minecraft.Util`) and the loading screen driven by `LevelLoadStatusManager` instead of `LevelLoadTracker` — see below. |
-| 1.21 – 1.21.8 | Needs separate code | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld(Component)` do not exist yet, and `LevelLoadingScreen.Reason` has a different shape. |
+| 1.21 – 1.21.8 | **Not supported** | Out of scope: the mod needs `LevelLoadTracker` (1.21.9+), `Identifier`, `ARGB` and `RenderPipelines`. |
 | **26.1 – 26.1.2** | **Supported by the `versions/26x` jar** | Minecraft 26.x ships **unobfuscated**, so it needs the no-remapping Loom and its own sources — see below. |
 | **26.2** | **Supported by the `versions/262x` jar** | Unobfuscated; `Gui` owns the screen and `GameRenderer` the main render target — see below. |
 | **26.3** | **Supported by the `versions/263x` jar** | The same, plus `RenderPipeline` moved to another package in 26.3, so the descriptor of `RenderPipelines.GUI_TEXTURED` differs — 26.2 and 26.3 cannot share one jar. |
@@ -112,16 +111,16 @@ What this line changed, and how it is handled:
 
 Every mixin target is unchanged from 26.1, so no injection needed touching.
 
-## Going below 1.21.9 (not done)
+## Below 1.21.9: not supported
 
-**1.21.6 – 1.21.8 is done** (`versions/1218x`): the renames plus the loading screen integration —
-`LevelLoadStatusManager` instead of `LevelLoadTracker`, the HUD ticked from `Minecraft#tick` (the
-screen has no `tick` there), the screen closed through `setScreen(null)` and
-`disconnectWithSavingScreen` for the quit hook.
+1.21.1 – 1.21.8 is out of scope. The mod needs `LevelLoadTracker` (added in 1.21.9), and the older
+lines build the loading screen differently. The tables below are kept as a reference for a future
+attempt — the `versions/1218x` project from that attempt was removed.
 
-1.21.1 – 1.21.5 still needs its own pass: 1.21.5 and below have no pipeline based `blit` (the overload
-takes `Function<ResourceLocation, RenderType>` there) and no `disconnectWithSavingScreen`, and
-1.21.1 – 1.21.4 additionally have no `ARGB`/`RenderPipelines` at all.
+**Historical note (1.21.6 – 1.21.8):** it was ported once — `LevelLoadStatusManager` instead of
+`LevelLoadTracker`, the HUD ticked from `Minecraft#tick` (the screen has no `tick` there), the screen
+closed through `setScreen(null)` and `disconnectWithSavingScreen` for the quit hook. 1.21.1 – 1.21.5
+additionally lack the pipeline based `blit` and `ARGB`/`RenderPipelines`.
 
 | Piece | 1.21.9+ | 1.21.5 – 1.21.8 | 1.21.1 – 1.21.4 |
 |---|---|---|---|
