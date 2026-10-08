@@ -90,6 +90,40 @@ paths, not just shims.
    * keep the shared sources in `src/main` and put the version-specific files in a separate source
      set, or keep a separate branch, so the two clusters can still be developed together.
 
+## Porting to 26.2 / 26.3 (not done yet)
+
+26.2 and 26.3 are a **different API line** from 26.1 and still need their own pass. Measured with
+`compileJava` against each version:
+
+| Version | Errors | What is missing |
+|---|---|---|
+| 26.2 | 16 | `Minecraft#screen` (10×), `Minecraft#setScreen` (4×), `Minecraft#getMainRenderTarget` (2×) |
+| 26.3 | 24 | the same, plus `com.mojang.blaze3d.textures.FilterMode` (moved to `com.mojang.renderpearl.api.textures.FilterMode`) and `Util.getPlatform().openPath(Path)` |
+
+What was already pinned down while investigating:
+
+* the current screen moved into `Gui`: use **`minecraft.gui.screen()`** and
+  **`minecraft.gui.setScreen(...)`**; `Minecraft` itself only has `setScreenAndShow(Screen)` left and
+  no screen field or getter;
+* `Util$OS` has no `open*` method in 26.3, so the "Open Folder" button needs another way to open a
+  path (plain `java.awt.Desktop` is version independent);
+* `FilterMode` is only used for the reflective sampler lookup, so looking it up by name instead of by
+  class would let one jar cover 26.2 and 26.3 at once;
+* **every mixin target is unchanged** from 26.1, so the fork only needs the points above:
+  `Screen#extractRenderState` / `extractBackground` / `extractRenderStateWithTooltipAndSubtitles`,
+  `LevelLoadingScreen#tick` / `extractRenderState` / `extractBackground` / `onClose`,
+  `WorldOpenFlows#openWorld` / `createLevelFromExistingSettings` / `createFreshLevel` /
+  `openWorldLoadLevelStem`, `CreateWorldScreen#createNewWorld`, `LevelLoadTracker#isLevelReady`.
+
+The one open question is where the main render target lives now: `Minecraft#getMainRenderTarget()` is
+gone and it is not on `Minecraft`, `Window`, `RenderSystem`, `RenderTarget` or `MainTarget` either.
+`Screenshot#takeScreenshot(RenderTarget, Consumer)` and `Screenshot#grab(Minecraft, boolean)` still
+exist, so the capture code itself is fine — it just needs the target. Generating the sources
+(`gradlew -p versions/263x genSources`) answers that quickly.
+
+To build it: copy `versions/26x` to `versions/263x`, point `gradle.properties` at 26.2/26.3
+(`yacl_version=3.9.7+26.2-fabric`, `modmenu_version=20.0.3`), and work through the list above.
+
 ## Verification
 
 Two independent checks were run for the 1.21.9 – 1.21.11 range:
