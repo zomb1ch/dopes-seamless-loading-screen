@@ -15,6 +15,8 @@
   "dopes_seamless_loading_screen.config.general.waitChunks.description": "Дожидаться полной загрузки всех чанков перед началом fade анимации.",
   "dopes_seamless_loading_screen.config.general.chunkCounter": "Счётчик чанков",
   "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Показывать сверху экрана прогресс загрузки чанков (сколько прогружено / всего).",
+  "dopes_seamless_loading_screen.config.general.customScreen": "Свой экран загрузки",
+  "dopes_seamless_loading_screen.config.general.customScreen.description": "Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку и полосу прогресса мода. Выкл. — показывается ванильный экран загрузки.",
   "dopes_seamless_loading_screen.config.general.serverPositionCheck": "Проверка места на сервере",
   "dopes_seamless_loading_screen.config.general.serverPositionCheck.description": "Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — вместо скриншота показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.",
   "dopes_seamless_loading_screen.config.general.transition": "Вспомогательные экраны переходов",

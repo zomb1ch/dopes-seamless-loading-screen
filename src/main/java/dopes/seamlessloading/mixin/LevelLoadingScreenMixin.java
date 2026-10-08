@@ -60,18 +60,19 @@ public abstract class LevelLoadingScreenMixin {
 
 	@Inject(method = "tick", at = @At("HEAD"))
 	private void dopes$tickHud(CallbackInfo ci) {
-		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning()) {
+		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning() && SeamlessHud.isEnabled()) {
 			SeamlessHud.tick(progress());
 		}
 	}
 
 	/**
 	 * Replaces the whole vanilla loading screen content (the chunk map, the "Downloading terrain"
-	 * text and the vanilla progress bar) with our own HUD. The optional chunk counter is kept.
+	 * text and the vanilla progress bar) with our own HUD. The optional chunk counter is kept. With
+	 * the custom screen turned off the vanilla content is left alone.
 	 */
 	@Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", at = @At("HEAD"), cancellable = true)
 	private void dopes$renderHud(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-		if (this.reason != LevelLoadingScreen.Reason.OTHER || !SeamlessSession.isRunning()) {
+		if (this.reason != LevelLoadingScreen.Reason.OTHER || !SeamlessSession.isRunning() || !SeamlessHud.isEnabled()) {
 			return;
 		}
 
@@ -79,6 +80,20 @@ public abstract class LevelLoadingScreenMixin {
 		SeamlessHud.render(guiGraphics, screen.width, screen.height, SeamlessHud.Style.LOADING, 1.0F);
 		renderChunkCounter(guiGraphics, screen);
 		ci.cancel();
+	}
+
+	/**
+	 * Keeps the optional chunk counter working when the custom loading screen is turned off: it is a
+	 * setting of its own, so it is drawn on top of the vanilla screen instead.
+	 */
+	@Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V", at = @At("TAIL"))
+	private void dopes$renderCounterOverVanilla(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick,
+			CallbackInfo ci) {
+		if (this.reason != LevelLoadingScreen.Reason.OTHER || !SeamlessSession.isRunning() || SeamlessHud.isEnabled()) {
+			return;
+		}
+
+		renderChunkCounter(guiGraphics, (LevelLoadingScreen) (Object) this);
 	}
 
 	/** Optional "loaded / total chunks" counter at the top of the screen. */
@@ -118,7 +133,8 @@ public abstract class LevelLoadingScreenMixin {
 	/** Replaces the vanilla "close and show the world" with our fade animation. */
 	@Inject(method = "onClose", at = @At("HEAD"), cancellable = true)
 	private void dopes$fadeOut(CallbackInfo ci) {
-		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning() && !SeamlessHud.isFull()) {
+		if (this.reason == LevelLoadingScreen.Reason.OTHER && SeamlessSession.isRunning() && SeamlessHud.isEnabled()
+				&& !SeamlessHud.isFull()) {
 			// The world is ready but our progress bar has not caught up yet. Keep the screen open for
 			// the last few ticks so the bar always finishes smoothly instead of jumping to the end.
 			SeamlessHud.startFinishing();

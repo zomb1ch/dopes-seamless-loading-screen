@@ -1,6 +1,7 @@
 package dopes.seamlessloading;
 
 import com.mojang.blaze3d.platform.NativeImage;
+import dopes.seamlessloading.config.SeamlessConfig;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -142,10 +143,23 @@ public final class SeamlessHud {
 	}
 
 	/**
+	 * Whether the mod's own HUD replaces the vanilla loading screen furniture. When this is off the
+	 * callers must leave the vanilla screen alone.
+	 */
+	public static boolean isEnabled() {
+		SeamlessConfig config = SeamlessConfigManager.get();
+		return config.modEnabled && config.customLoadingScreen;
+	}
+
+	/**
 	 * Draws the HUD. {@code alpha} is the opacity coming from the screen it is drawn on; the HUD
 	 * additionally fades in over the same duration as the transition screen.
 	 */
 	public static void render(GuiGraphics graphics, int width, int height, Style style, float alpha) {
+		if (!isEnabled()) {
+			return;
+		}
+
 		Sprite text = text(style);
 		if (text == null) {
 			return;
@@ -188,9 +202,9 @@ public final class SeamlessHud {
 
 	private static void drawFrame(GuiGraphics graphics, Sprite sprite, int x, int y, float alpha) {
 		int frame = (int) ((Util.getMillis() / FRAME_MILLIS) % sprite.frames());
-		// Frames are laid out top to bottom first, then column by column.
-		int column = frame / sprite.rows();
-		int row = frame % sprite.rows();
+		// Frames are laid out left to right first, then row by row.
+		int column = frame % sprite.columns();
+		int row = frame / sprite.columns();
 
 		graphics.blit(RenderPipelines.GUI_TEXTURED, sprite.id(), x, y,
 				(float) (column * sprite.frameWidth()), (float) (row * sprite.frameHeight()),
@@ -269,7 +283,7 @@ public final class SeamlessHud {
 		}
 	}
 
-	/** One sprite sheet: frames are laid out top to bottom, then left to right. */
+	/** One sprite sheet: frames are laid out left to right, then row by row. */
 	private record Sprite(Identifier id, int sheetWidth, int sheetHeight, int frameWidth, int frameHeight) {
 
 		int columns() {

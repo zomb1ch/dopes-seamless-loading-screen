@@ -83,6 +83,7 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 | Transition Fade Duration | 800 ms | How long the transition screen takes to appear and to disappear. The same for entering and leaving. 0 = no animation. |
 | Slideshow (no screenshot) | on | Show the slideshow when a world has no screenshot yet. |
 | Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. |
+| Custom Loading Screen | on | Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon and progress bar. Off = the vanilla loading screen is shown. |
 | Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
 | Blur Strength | 16 | How strongly the screenshot is blurred. 0 = no blur, max 64. |
 | Blur Animation Speed | 50% | How much of the fade the blur animation takes. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation. The slideshow never animates its blur. |
@@ -194,6 +195,7 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 | Время fade анимации переходов | 800 мс | Длительность появления и исчезновения вспомогательного экрана. Одна и та же для входа и выхода. 0 = без анимации. |
 | Слайд-шоу, если нет скриншота | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
 | Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. |
+| Свой экран загрузки | вкл | Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку и полосу прогресса мода. Выкл. — показывается ванильный экран загрузки. |
 | Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
 | Сила размытия | 16 | Насколько сильно размыт скриншот. 0 = без размытия, максимум 64. |
 | Скорость анимации размытия | 50% | Какую часть затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации. В слайд-шоу анимация размытия не работает. |

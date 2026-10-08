@@ -7,6 +7,12 @@ public class SeamlessConfig {
 	public boolean chunkCounter = false;
 
 	/**
+	 * Replace the vanilla loading screen furniture (the "Downloading terrain" text, the chunk map and
+	 * the progress bar) with the mod's own animated text, icon and progress bar.
+	 */
+	public boolean customLoadingScreen = true;
+
+	/**
 	 * Only show the server screenshot when you rejoin at (roughly) the same spot as last time;
 	 * otherwise the slideshow is shown. Servers that drop you into a lobby on every join would
 	 * otherwise show a misleading screenshot.

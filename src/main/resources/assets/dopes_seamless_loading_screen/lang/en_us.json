@@ -15,6 +15,8 @@
   "dopes_seamless_loading_screen.config.general.waitChunks.description": "Wait for all chunks to fully load before starting the fade animation.",
   "dopes_seamless_loading_screen.config.general.chunkCounter": "Chunk Counter",
   "dopes_seamless_loading_screen.config.general.chunkCounter.description": "Show chunk loading progress at the top of the screen (loaded / total).",
+  "dopes_seamless_loading_screen.config.general.customScreen": "Custom Loading Screen",
+  "dopes_seamless_loading_screen.config.general.customScreen.description": "Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon and progress bar. Off = the vanilla loading screen is shown.",
   "dopes_seamless_loading_screen.config.general.serverPositionCheck": "Server Position Check",
   "dopes_seamless_loading_screen.config.general.serverPositionCheck.description": "Remember where you were when you left a server, and only show the screenshot again when you rejoin at (roughly) the same spot. If you end up somewhere else (a lobby, another world, ...) the slideshow is shown instead, so the screenshot is never misleading.",
   "dopes_seamless_loading_screen.config.general.transition": "Transition Screens",

@@ -52,6 +52,9 @@ public final class SeamlessConfigScreen {
 		Option<Boolean> chunkCounter = bool("general.chunkCounter", defaults.chunkCounter,
 				() -> config.chunkCounter, value -> config.chunkCounter = value);
 
+		Option<Boolean> customLoadingScreen = bool("general.customScreen", defaults.customLoadingScreen,
+				() -> config.customLoadingScreen, value -> config.customLoadingScreen = value);
+
 		Option<Boolean> serverPositionCheck = bool("general.serverPositionCheck", defaults.serverPositionCheck,
 				() -> config.serverPositionCheck, value -> config.serverPositionCheck = value);
 
@@ -102,7 +105,7 @@ public final class SeamlessConfigScreen {
 				.category(ConfigCategory.createBuilder()
 						.name(name("page"))
 						.group(group("general", enabled, serverPositionCheck, slideshowIfNoScreenshot,
-								waitForAllChunks, chunkCounter))
+								waitForAllChunks, customLoadingScreen, chunkCounter))
 						.group(group("display", transitionScreens, transitionFadeDuration, blurStrength, blurSpeed,
 								backgroundDim, fadeDuration, imageSize))
 						.group(group("timing", minShowTime, maxShowTime))
