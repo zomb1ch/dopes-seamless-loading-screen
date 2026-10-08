@@ -54,8 +54,11 @@ public abstract class MinecraftClientMixin {
 	/**
 	 * Skips the vanilla "Reading world data" / "Loading resources" / "Saving world" screens while the
 	 * transition overlay is up, so only the screenshot is visible and nothing flashes underneath it.
+	 *
+	 * <p>In 26.2 {@code Minecraft#setScreen} was replaced by {@code setScreenAndShow} (the screen itself
+	 * moved into {@code Gui}).
 	 */
-	@Inject(method = "setScreen", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "setScreenAndShow", at = @At("HEAD"), cancellable = true)
 	private void dopes$hideIntermediateScreens(Screen screen, CallbackInfo ci) {
 		if (SeamlessCurtain.shouldHideScreen(screen)) {
 			ci.cancel();
