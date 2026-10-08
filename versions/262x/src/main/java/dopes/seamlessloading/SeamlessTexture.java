@@ -1,176 +1,54 @@
 package dopes.seamlessloading;
 
-import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.texture.AbstractTexture;
-import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 
-import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * One image loaded from disk and uploaded to the GPU.
+ * One prepared image ({@link SeamlessImage}) plus the drawing: the image is stretched over the whole
+ * screen and, while the blur amount grows or shrinks, two neighbouring blur levels are blended into
+ * each other.
  *
- * <p>An image is stored several times: once sharp and, if the user configured a blur, once per blur
- * level. Level {@code n} halves the resolution {@code n} times, so the levels get blurrier step by
- * step. Drawing blends between two neighbouring levels, which is what makes the blur radius grow and
- * shrink smoothly instead of cross fading between a sharp and a mushy image.
- *
- * <p>The blur is produced by resizing (1.21.11 no longer supports the old core shader API the
- * original mod used).
+ * <p>How the image is resized and blurred, and why that is not done with {@code NativeImage}, is
+ * described in {@link SeamlessImage}. The texture has exactly the size it is drawn at, so the blit
+ * below samples it one to one and the picture does not depend on the texture filter.
  */
 public final class SeamlessTexture {
 
-	private static final AtomicInteger COUNTER = new AtomicInteger();
+	private final SeamlessImage image;
 
-	/** How many blur levels the strongest setting generates. */
-	private static final int MAX_BLUR_LEVELS = 5;
-
-	private final Identifier sharpId;
-	/** Blur levels, weakest first. Empty when the blur is disabled. */
-	private final Identifier[] blurIds;
-	private final float ratio;
-	private boolean closed;
-
-	private SeamlessTexture(Identifier sharpId, Identifier[] blurIds, float ratio) {
-		this.sharpId = sharpId;
-		this.blurIds = blurIds;
-		this.ratio = ratio;
+	private SeamlessTexture(SeamlessImage image) {
+		this.image = image;
 	}
 
 	/**
 	 * Loads the given file, or returns {@code null} if it is missing or unreadable.
 	 *
-	 * @param imageSize resolution the image is kept at, in percent of its original size. The image
-	 *                  is always stretched over the whole screen when drawn, this only trades
-	 *                  quality (and memory) for performance.
+	 * @param imageSize resolution the image is sampled at, in percent of its original size. The image
+	 *                  is always stretched over the whole screen when drawn, this only trades quality
+	 *                  (and time) for performance.
 	 */
 	public static SeamlessTexture load(Path path, int blurStrength, int imageSize) {
-		if (path == null || !Files.isRegularFile(path)) {
-			return null;
-		}
-
-		try (InputStream in = Files.newInputStream(path)) {
-			return fromImage(NativeImage.read(in), blurStrength, imageSize);
-		} catch (Exception e) {
-			DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to read the image {}", path, e);
-			return null;
-		}
+		SeamlessImage loaded = SeamlessImage.load(path, blurStrength, imageSize);
+		return loaded == null ? null : new SeamlessTexture(loaded);
 	}
 
 	/** Loads an image that ships inside the mod jar (the bundled slideshow placeholders). */
 	public static SeamlessTexture loadResource(Identifier resource, int blurStrength, int imageSize) {
-		try {
-			Optional<Resource> optional = Minecraft.getInstance().getResourceManager().getResource(resource);
-			if (optional.isEmpty()) {
-				return null;
-			}
-
-			try (InputStream in = optional.get().open()) {
-				return fromImage(NativeImage.read(in), blurStrength, imageSize);
-			}
-		} catch (Exception e) {
-			DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to read the bundled image {}", resource, e);
-			return null;
-		}
-	}
-
-	private static SeamlessTexture fromImage(NativeImage image, int blurStrength, int imageSize) {
-		NativeImage sharp = resize(image, imageSize);
-		String suffix = "_" + COUNTER.incrementAndGet();
-		Identifier sharpId = Identifier.fromNamespaceAndPath(DopesSeamlessLoadingScreen.MOD_ID, "image" + suffix);
-		Minecraft.getInstance().getTextureManager().register(sharpId, new LinearDynamicTexture(sharp));
-
-		int count = blurLevels(blurStrength);
-		Identifier[] blurIds = new Identifier[count];
-		if (count > 0) {
-			NativeImage[] levels = buildBlurLevels(sharp, count);
-			for (int i = 0; i < count; i++) {
-				Identifier id = Identifier.fromNamespaceAndPath(DopesSeamlessLoadingScreen.MOD_ID,
-						"image_blur" + (i + 1) + suffix);
-				Minecraft.getInstance().getTextureManager().register(id, new LinearDynamicTexture(levels[i]));
-				blurIds[i] = id;
-			}
-		}
-
-		return new SeamlessTexture(sharpId, blurIds, (float) sharp.getWidth() / (float) sharp.getHeight());
-	}
-
-	/** Scales the image down to {@code percent} of its resolution. 100% keeps it untouched. */
-	private static NativeImage resize(NativeImage source, int percent) {
-		if (percent >= 100) {
-			return source;
-		}
-
-		int width = Math.max(1, source.getWidth() * Math.max(1, percent) / 100);
-		int height = Math.max(1, source.getHeight() * Math.max(1, percent) / 100);
-		NativeImage target = new NativeImage(width, height, false);
-		source.resizeSubRectTo(0, 0, source.getWidth(), source.getHeight(), target);
-		source.close();
-		return target;
-	}
-
-	/**
-	 * How many halving steps the configured strength asks for. 1 = a mild blur (half resolution),
-	 * every extra level doubles the radius. 0 disables the blur.
-	 */
-	private static int blurLevels(int strength) {
-		if (strength <= 0) {
-			return 0;
-		}
-
-		int levels = 31 - Integer.numberOfLeadingZeros(Math.min(strength, 64)) - 1;
-		return Math.max(1, Math.min(MAX_BLUR_LEVELS, levels));
-	}
-
-	/**
-	 * Builds the blur pyramid: every level halves the resolution one more time and is then scaled
-	 * back up to the original size. Halving in several small steps instead of one big jump is what
-	 * keeps the result smooth, a single big jump looks like a coarse, low quality image.
-	 */
-	private static NativeImage[] buildBlurLevels(NativeImage source, int count) {
-		NativeImage[] levels = new NativeImage[count];
-		NativeImage current = source;
-
-		for (int i = 0; i < count; i++) {
-			NativeImage smaller = new NativeImage(Math.max(1, current.getWidth() / 2),
-					Math.max(1, current.getHeight() / 2), false);
-			current.resizeSubRectTo(0, 0, current.getWidth(), current.getHeight(), smaller);
-			if (current != source) {
-				current.close();
-			}
-
-			current = smaller;
-
-			NativeImage level = new NativeImage(source.getWidth(), source.getHeight(), false);
-			smaller.resizeSubRectTo(0, 0, smaller.getWidth(), smaller.getHeight(), level);
-			levels[i] = level;
-		}
-
-		if (current != source) {
-			current.close();
-		}
-
-		return levels;
+		SeamlessImage loaded = SeamlessImage.loadResource(resource, blurStrength, imageSize);
+		return loaded == null ? null : new SeamlessTexture(loaded);
 	}
 
 	public boolean hasBlur() {
-		return blurIds.length > 0;
+		return image.hasBlur();
 	}
 
 	public float ratio() {
-		return ratio;
+		return image.ratio();
 	}
 
 	/**
@@ -178,13 +56,14 @@ public final class SeamlessTexture {
 	 * level, everything in between blends the two neighbouring levels.
 	 */
 	public void draw(GuiGraphicsExtractor graphics, int screenWidth, int screenHeight, float alpha, float blur) {
-		if (closed || alpha <= 0.001F) {
+		if (image.isClosed() || alpha <= 0.001F) {
 			return;
 		}
 
+		Identifier[] blurIds = image.blurIds();
 		int count = blurIds.length;
 		if (count == 0 || blur <= 0.001F) {
-			drawLevel(graphics, sharpId, screenWidth, screenHeight, alpha);
+			drawLevel(graphics, image.sharpId(), screenWidth, screenHeight, alpha);
 			return;
 		}
 
@@ -196,7 +75,7 @@ public final class SeamlessTexture {
 			return;
 		}
 
-		drawLevel(graphics, base == 0 ? sharpId : blurIds[base - 1], screenWidth, screenHeight, alpha);
+		drawLevel(graphics, base == 0 ? image.sharpId() : blurIds[base - 1], screenWidth, screenHeight, alpha);
 
 		float fraction = position - base;
 		if (fraction > 0.001F) {
@@ -209,98 +88,12 @@ public final class SeamlessTexture {
 			return;
 		}
 
-		int[] rect = SeamlessBackground.coverRect(screenWidth, screenHeight, ratio);
-		int x = rect[0];
-		int y = rect[1];
-		int width = rect[2];
-		int height = rect[3];
-
-		graphics.blit(RenderPipelines.GUI_TEXTURED, id, x, y, 0.0F, 0.0F, width, height, width, height, width, height,
-				ARGB.white(alpha));
+		int[] rect = SeamlessBackground.coverRect(screenWidth, screenHeight, image.ratio());
+		graphics.blit(RenderPipelines.GUI_TEXTURED, id, rect[0], rect[1], 0.0F, 0.0F, rect[2], rect[3],
+				image.width(), image.height(), image.width(), image.height(), ARGB.white(alpha));
 	}
 
 	public void close() {
-		if (closed) {
-			return;
-		}
-
-		closed = true;
-		Minecraft minecraft = Minecraft.getInstance();
-		if (minecraft.getTextureManager() == null) {
-			return;
-		}
-
-		minecraft.getTextureManager().release(sharpId);
-		for (Identifier id : blurIds) {
-			minecraft.getTextureManager().release(id);
-		}
-	}
-
-	/**
-	 * Vanilla's {@link DynamicTexture} uses nearest neighbour filtering, which looks blocky when the
-	 * screenshot is scaled to a different resolution than it was taken at.
-	 *
-	 * <p>How the filtering is set changed over the versions the mod supports: 1.21.11 and newer have a
-	 * sampler cache, older ones a plain {@code setFilter} flag. Both are looked up reflectively, so a
-	 * jar built against the newest version still runs on the older ones. If neither exists the texture
-	 * keeps vanilla's nearest filtering: it still renders, it is just a bit blockier.
-	 */
-	private static class LinearDynamicTexture extends DynamicTexture {
-
-		LinearDynamicTexture(NativeImage image) {
-			super(() -> "Seamless image", image);
-			applyLinearFilter(this);
-		}
-	}
-
-	private static void applyLinearFilter(AbstractTexture texture) {
-		if (!useSamplerCache(texture) && !useSetFilter(texture)) {
-			DopesSeamlessLoadingScreen.LOGGER.warn(
-					"[Seamless] This Minecraft version has no linear texture filtering, the image may look blocky");
-		}
-	}
-
-	/** 26.1 and older: {@code RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR)}. */
-	private static boolean useSamplerCache(AbstractTexture texture) {
-		try {
-			Object cache = RenderSystem.class.getMethod("getSamplerCache").invoke(null);
-			Class<?> filterMode = filterModeClass();
-			if (filterMode == null) {
-				return false;
-			}
-
-			Object linear = filterMode.getField("LINEAR").get(null);
-			Object sampler = cache.getClass().getMethod("getClampToEdge", filterMode).invoke(cache, linear);
-			Field field = AbstractTexture.class.getDeclaredField("sampler");
-			field.setAccessible(true);
-			field.set(texture, sampler);
-			return true;
-		} catch (Throwable ignored) {
-			return false;
-		}
-	}
-
-	/** {@code FilterMode} moved to another package in 26.3, so it is looked up by name. */
-	private static Class<?> filterModeClass() {
-		for (String name : new String[] { "com.mojang.blaze3d.textures.FilterMode",
-				"com.mojang.renderpearl.api.textures.FilterMode" }) {
-			try {
-				return Class.forName(name);
-			} catch (Throwable ignored) {
-				// try the next one
-			}
-		}
-
-		return null;
-	}
-
-	/** Older versions: the plain {@code setFilter(blur, mipmap)} flag. */
-	private static boolean useSetFilter(AbstractTexture texture) {
-		try {
-			AbstractTexture.class.getMethod("setFilter", boolean.class, boolean.class).invoke(texture, true, false);
-			return true;
-		} catch (Throwable ignored) {
-			return false;
-		}
+		image.close();
 	}
 }

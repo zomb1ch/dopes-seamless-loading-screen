@@ -5,7 +5,6 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -157,9 +156,13 @@ public final class SeamlessCapture {
 		return null;
 	}
 
+	/**
+	 * The main render target comes from {@link SeamlessRenderTargets}: that lookup has to be compiled
+	 * against the version it runs on. Reflection by name is remapped away at runtime on 1.21.x and
+	 * silently found nothing.
+	 */
 	private static void capture(Path target) {
-		Minecraft minecraft = Minecraft.getInstance();
-		RenderTarget renderTarget = mainRenderTarget(minecraft);
+		RenderTarget renderTarget = SeamlessRenderTargets.main();
 		if (renderTarget == null) {
 			return;
 		}
@@ -178,24 +181,5 @@ public final class SeamlessCapture {
 				DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to save the screenshot to {}", target, e);
 			}
 		}));
-	}
-
-	/**
-	 * The main render target. Up to 26.1 this is {@code Minecraft#getMainRenderTarget()}; from 26.2 it
-	 * moved to {@code GameRenderer#mainRenderTarget()}, so both are looked up reflectively and the mod
-	 * keeps working on either.
-	 */
-	private static RenderTarget mainRenderTarget(Minecraft minecraft) {
-		try {
-			return (RenderTarget) Minecraft.class.getMethod("getMainRenderTarget").invoke(minecraft);
-		} catch (Throwable ignored) {
-			// 26.2 and newer
-		}
-
-		try {
-			return (RenderTarget) GameRenderer.class.getMethod("mainRenderTarget").invoke(minecraft.gameRenderer);
-		} catch (Throwable ignored) {
-			return null;
-		}
 	}
 }

@@ -61,6 +61,7 @@ def forkedFiles = [
 		'dopes/seamlessloading/SeamlessCurtain.java',
 		'dopes/seamlessloading/SeamlessFadeScreen.java',
 		'dopes/seamlessloading/SeamlessHud.java',
+		'dopes/seamlessloading/SeamlessRenderTargets.java',
 		'dopes/seamlessloading/SeamlessTexture.java',
 		'dopes/seamlessloading/mixin/CreateWorldScreenMixin.java',
 		'dopes/seamlessloading/mixin/LevelLoadingScreenMixin.java',

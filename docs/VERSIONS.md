@@ -71,9 +71,11 @@ Two different kinds of difference show up:
   `Level#dimension().location()` → `identifier()`. These only break *compiling against* an older
   version; the bytecode of a remapped jar refers to intermediary names, which do not change when a
   class is renamed. That is why the 1.21.11 build also runs on 1.21.10 and 1.21.9.
-* **New API** — `RenderSystem#getSamplerCache()` appeared in 1.21.11. This is a real runtime
-  blocker, so the texture filter is now looked up reflectively (`SeamlessTexture#useSamplerCache`,
-  falling back to the classic `setFilter` and finally to vanilla's nearest filtering).
+* **New API** — `RenderSystem#getSamplerCache()` appeared in 1.21.11, and `AbstractTexture#setFilter` is
+  gone there. 1.21.9 and 1.21.10 are the other way round: they have `setFilter`, and the `GpuSampler`
+  class does not exist yet. No single file can set a texture filter for all three versions, so the mod
+  does not set one at all: every texture is built at exactly the size it is drawn at, which makes the
+  sample one to one and the filter irrelevant (see `SeamlessImage`).
 
 **1.21.8 is the hard lower bound**: from there down the mod would need genuinely different code
 paths, not just shims.
@@ -104,9 +106,9 @@ What this line changed, and how it is handled:
 |---|---|---|
 | `Minecraft#screen` | moved into `Gui` | `minecraft.gui.screen()` |
 | `Minecraft#setScreen` | `Minecraft#setScreenAndShow`, `Gui#setScreen` | `minecraft.gui.setScreen(...)` |
-| `Minecraft#getMainRenderTarget` | `GameRenderer#mainRenderTarget` | looked up reflectively in `SeamlessCapture`, so the same file works on 1.21.x, 26.1 and 26.2/26.3 |
+| `Minecraft#getMainRenderTarget` | `GameRenderer#mainRenderTarget` | `SeamlessRenderTargets`, one call compiled per version: the root project and `versions/26x` use the `Minecraft` method, `versions/262x` and `versions/263x` the `GameRenderer` one |
 | `Util.getPlatform().openPath` | removed | `java.awt.Desktop` in `SeamlessConfigScreen` (works on every version) |
-| `com.mojang.blaze3d.textures.FilterMode` | moved to `com.mojang.renderpearl.api.textures.FilterMode` in 26.3 | looked up by name in `SeamlessTexture` |
+| `com.mojang.blaze3d.textures.FilterMode` | moved to `com.mojang.renderpearl.api.textures.FilterMode` in 26.3 | no longer used: the textures have the size they are drawn at, so nothing sets a filter (see `SeamlessImage`) |
 | `RenderPipelines.GUI_TEXTURED` (field type `com.mojang.blaze3d.pipeline.RenderPipeline`) | `RenderPipeline` moved to another package in 26.3 | nothing can be shimmed: the bytecode looks the field up by name **and descriptor**, so 26.2 and 26.3 each get their own jar (`versions/262x`, `versions/263x`) |
 
 Every mixin target is unchanged from 26.1, so no injection needed touching.
@@ -153,8 +155,10 @@ instance's `mods` folder, delete it — that build is unsupported and predates t
 Two independent checks were run for the 1.21.9 – 1.21.11 range:
 
 1. **Compilation.** The sources compile against all three versions apart from the renames listed
-   above (plus `RenderSystem#getSamplerCache`, which is looked up reflectively). Renames do not
-   change the bytecode of a remapped jar.
+   above (the texture filter API is no longer used at all). Renames do not change the bytecode of a
+   remapped jar, and the check was repeated on the remapped jar: `Minecraft#getMainRenderTarget`
+   becomes `net/minecraft/class_310.method_1522()Lnet/minecraft/class_276;`, and the yarn mappings
+   give that same name in 1.21.9, 1.21.10 and 1.21.11.
 2. **Mixin targets.** Loom remaps the mixin annotations into intermediary names at build time. All 37
    intermediary names the mixins inject into or shadow (`method_25393` tick, `method_25394` render,
    `method_25419` onClose, `method_1507` setScreen, `method_29610` doWorldLoad, the `LevelLoadTracker`
