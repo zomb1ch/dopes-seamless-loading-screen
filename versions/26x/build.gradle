@@ -1,7 +1,7 @@
 plugins {
-	// Для MC 1.21.x нужен 'fabric-loom' (с intermediary remapping).
-	// 'net.fabricmc.fabric-loom' — вариант БЕЗ remapping (только для MC 26.x).
-	id 'fabric-loom' version "${loom_version}"
+	// MC 26.x необфусцирован — нужен вариант Loom БЕЗ remapping (в отличие от корневого проекта,
+	// который собирается под 1.21.x через intermediary).
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
 	id 'maven-publish'
 }
 
@@ -35,34 +35,68 @@ loom {
 
 group = project.maven_group
 
-// Версии Minecraft, под которые собирается мод (minecraft_versions в gradle.properties, через
-// запятую). Сборка идёт против ПОСЛЕДНЕЙ версии из списка: Fabric Loader сохраняет промежуточные
-// (intermediary) имена между версиями, поэтому один jar работает и на более старых версиях из
-// списка. Имя файла и зависимость minecraft в fabric.mod.json собираются из этого же списка.
+base {
+	archivesName = project.archives_base_name
+}
+
+// Версии Minecraft, под которые собирается этот jar (через запятую). Сборка идёт против ПОСЛЕДНЕЙ
+// версии из списка, а имя файла и зависимость minecraft в fabric.mod.json собираются из диапазона.
 def minecraftVersionList = project.minecraft_versions.split(',')
 		.collect { it.trim() }
 		.findAll { !it.isEmpty() }
 def minecraftRange = ">=${minecraftVersionList.first()} <=${minecraftVersionList.last()}"
+def minecraftName = minecraftVersionList.size() == 1
+		? minecraftVersionList.first()
+		: "${minecraftVersionList.first()}-${minecraftVersionList.last()}"
 
-version = "${project.mod_version}+${minecraftVersionList.join('-')}"
+version = "${project.mod_version}+${minecraftName}"
+
+// Общие исходники мода лежат в корне репозитория: их правит один файл на обе сборки. Специфичные
+// для 26.x файлы перечислены ниже и живут в versions/26x/src/main/java — остальное копируется из
+// корня в build/generated при сборке.
+def sharedJavaDir = file('../../src/main/java')
+def generatedSharedJava = layout.buildDirectory.dir('generated/sources/shared/java')
+def forkedFiles = [
+		'dopes/seamlessloading/SeamlessBackground.java',
+		'dopes/seamlessloading/SeamlessCurtain.java',
+		'dopes/seamlessloading/SeamlessFadeScreen.java',
+		'dopes/seamlessloading/SeamlessHud.java',
+		'dopes/seamlessloading/SeamlessTexture.java',
+		'dopes/seamlessloading/mixin/CreateWorldScreenMixin.java',
+		'dopes/seamlessloading/mixin/LevelLoadingScreenMixin.java',
+		'dopes/seamlessloading/mixin/MinecraftClientMixin.java',
+		'dopes/seamlessloading/mixin/ScreenMixin.java',
+		'dopes/seamlessloading/mixin/WorldOpenFlowsMixin.java'
+]
+
+tasks.register('syncSharedSources', Sync) {
+	from sharedJavaDir
+	into layout.buildDirectory.dir('generated/sources/shared/java')
+	exclude forkedFiles
+}
+
+sourceSets {
+	main {
+		// Провайдер задачи (а не путь) — так Gradle сам знает, что каталог сначала надо собрать.
+		java.srcDirs = [tasks.named('syncSharedSources'), 'src/main/java']
+		resources.srcDirs = ['../../src/main/resources', 'src/main/resources']
+	}
+}
 
 dependencies {
-	// Minecraft + Mojang official mappings (через intermediary)
+	// Minecraft без маппингов: игра не обфусцирована, remapping не нужен
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
 
-	// modImplementation (а не implementation) — Loom ремапит мод-жарки с intermediary на наши маппинги
-	// и заодно добавляет sponge-mixin в classpath для компиляции миксинов.
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	// В варианте Loom без remapping нет конфигураций mod* — обычные implementation/compileOnly.
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API не нужен: мод использует только Fabric Loader (ClientModInitializer, FabricLoader).
-	// Убрав зависимость, мод меньше привязан к конкретной версии Minecraft.
 
 	// YACL (конфиг) — обязательная зависимость
-	modImplementation "maven.modrinth:yacl:${project.yacl_version}"
+	implementation "maven.modrinth:yacl:${project.yacl_version}"
 
 	// ModMenu — только для компиляции entrypoint; в рантайме опционален
-	modCompileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
+	compileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
 
 	// YACL поставляет эти библиотеки как nested-jars (JiJ). В dev-окружении Fabric Loader
 	// их не распаковывает, поэтому добавляем их вручную — в собранный мод они не попадают.
@@ -87,20 +121,18 @@ processResources {
 	}
 
 	// The sprite sheets live in ./sprites; bundle them into the mod resources.
-	from("sprites") {
+	from("../../sprites") {
 		into "assets/${mod_id}/gui"
 		include "*.png"
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	// Minecraft 1.21.11 работает на Java 21
 	it.options.release = 21
 	it.options.encoding = 'UTF-8'
 }
 
 java {
-	// Loom сам прикрепит sourcesJar к задаче build
 	withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_21
@@ -108,12 +140,11 @@ java {
 }
 
 jar {
-	from("LICENSE") {
+	from("../../LICENSE") {
 		rename { "${it}_${project.base.archivesName.get()}" }
 	}
 }
 
-// configure the maven publication
 publishing {
 	publications {
 		create("mavenJava", MavenPublication) {
@@ -121,13 +152,6 @@ publishing {
 		}
 	}
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing your artifact, not for
-	// retrieving dependencies.
 	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
 	}
 }
-

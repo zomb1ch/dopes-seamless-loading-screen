@@ -8,9 +8,46 @@ three.
 
 | Versions | Status | Why |
 |---|---|---|
-| **1.21.9 – 1.21.11** | **Supported by this jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
+| **1.21.9 – 1.21.11** | **Supported by the root jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
 | 1.21 – 1.21.8 | Needs separate code | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld(Component)` do not exist yet, and `LevelLoadingScreen.Reason` has a different shape. |
-| 26.1 – 26.3 | Needs a **separate build** | Minecraft 26.x ships **unobfuscated**: Fabric reports no intermediary mappings for it (`0.0.0`), while 1.21.x does. A jar remapped to intermediary cannot load on 26.x, and vice versa. The API also changes between 26.x releases (Fabric documents a 26.1 → 26.2 migration). |
+| **26.1 – 26.1.2** | **Supported by the `versions/26x` jar** | Minecraft 26.x ships **unobfuscated**, so it needs the no-remapping Loom and its own sources — see below. |
+| 26.2 – 26.3 | Needs its own pass | Another API line: `Util` and `FilterMode` moved again, `Minecraft#setScreen` became `setScreenAndShow` and `getMainRenderTarget` was renamed. |
+
+## The 26.x build
+
+`versions/26x` is a second Gradle project that builds the same mod for the 26.x line:
+
+```
+gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar
+gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar
+```
+
+Differences from the root project:
+
+* it uses **`net.fabricmc.fabric-loom`**, the Loom variant **without remapping**, because 26.x is not
+  obfuscated: there is no `mappings` dependency at all, and that Loom has no `mod*` configurations,
+  so `implementation` / `compileOnly` are used for Fabric Loader, YACL and Mod Menu;
+* shared sources are taken from `../../src/main/java`; a `syncSharedSources` task copies them into
+  `build/generated` and **excludes the ten files that really differ**, which live in
+  `versions/26x/src/main/java`. Edit shared code in one place, and only touch the fork when the
+  26.x API actually differs.
+
+What changed for 26.x (the GUI rendering model was reworked):
+
+| 1.21.x | 26.x |
+|---|---|
+| `net.minecraft.client.gui.GuiGraphics` | `net.minecraft.client.gui.GuiGraphicsExtractor` |
+| `Screen#render` | `Screen#extractRenderState` |
+| `Screen#renderBackground` | `Screen#extractBackground` |
+| `Screen#renderWithTooltipAndSubtitles` | `Screen#extractRenderStateWithTooltipAndSubtitles` |
+| `GuiGraphics#drawCenteredString` | `GuiGraphicsExtractor#centeredText` |
+| `Minecraft#doWorldLoad(..., boolean)` | `Minecraft#doWorldLoad(..., Optional<GameRules>, boolean)` |
+| `WorldOpenFlows#createLevelFromExistingSettings(..., WorldData, ...)` | `..., LevelDataAndDimensions.WorldDataAndGenSettings, Optional, ...` |
+| `CreateWorldScreen#createNewWorld(..., WorldData, ...)` | `..., LevelDataAndDimensions.WorldDataAndGenSettings, Optional, ...` |
+
+The rest of the mixin targets (`Screen`, `LevelLoadingScreen`, `LevelLoadTracker`, `ConnectScreen`,
+`CreateWorldScreen`, `ClientPacketListener`, `ClientCommonPacketListenerImpl`, `GameRenderer`) were
+checked against the 26.1 classes and are unchanged.
 
 ## How this was measured
 
