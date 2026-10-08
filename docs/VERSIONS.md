@@ -53,8 +53,31 @@ paths, not just shims.
    * keep the shared sources in `src/main` and put the version-specific files in a separate source
      set, or keep a separate branch, so the two clusters can still be developed together.
 
-## Runtime verification
+## Verification
 
-The `1.21.9 – 1.21.11` range is verified by compilation only: the mod is developed and run on
-**1.21.11**. If you run it on 1.21.9 or 1.21.10 and something misbehaves, please open an issue with
-your `latest.log`.
+Two independent checks were run for the 1.21.9 – 1.21.11 range:
+
+1. **Compilation.** The sources compile against all three versions apart from the renames listed
+   above (plus `RenderSystem#getSamplerCache`, which is looked up reflectively). Renames do not
+   change the bytecode of a remapped jar.
+2. **Mixin targets.** Loom remaps the mixin annotations into intermediary names at build time. All 37
+   intermediary names the mixins inject into or shadow (`method_25393` tick, `method_25394` render,
+   `method_25419` onClose, `method_1507` setScreen, `method_29610` doWorldLoad, the `LevelLoadTracker`
+   methods, the shadowed fields, ...) exist in 1.21.9, 1.21.10 and 1.21.11, so every injection
+   resolves on all three.
+
+The mod is developed and run on **1.21.11**. If something misbehaves on 1.21.9 or 1.21.10, please
+open an issue with your `latest.log`.
+
+## "Failed to load registries" is not this mod
+
+A crash during *Registry Loading* comes from a **datapack** (usually a worldgen mod), for example:
+
+```
+Failed to parse minecraft:dimension_type/overworld.json from pack mr_lithosphere
+```
+
+This mod ships no `data/` folder at all — only `assets/` — so it cannot influence registries. Look at
+the mod named in the error message, and check that it is built for the Minecraft version you run
+(worldgen packs often declare no `minecraft` dependency at all, so they load everywhere and then fail
+to parse).
