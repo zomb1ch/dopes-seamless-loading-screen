@@ -13,7 +13,8 @@ screenshot of the place you are leaving is taken on the way out, and on the way 
 over the Minecraft menu, covers the whole load and melts into the world — so instead of a generic
 "Loading terrain..." screen you see where you are returning to.
 
-**Links:** [GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
+**Links:** [Modrinth](https://modrinth.com/mod/dopes-seamless-loading-screen) ·
+[GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
 [Issues & suggestions](https://github.com/zomb1ch/dopes-seamless-loading-screen/issues) ·
 [Modrinth page source](MODRINTH.md)
 
@@ -146,6 +147,10 @@ several (comma separated) to build for a wider version range.
 места, откуда вы уходите, делается на выходе, а при возвращении он плавно проявляется поверх меню
 Minecraft, держится всю загрузку и растворяется в мире — вместо безликого «Loading terrain…» вы
 видите то место, куда возвращаетесь.
+
+**Ссылки:** [Modrinth](https://modrinth.com/mod/dopes-seamless-loading-screen) ·
+[GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
+[Ошибки и предложения](https://github.com/zomb1ch/dopes-seamless-loading-screen/issues)
 
 ### Возможности
 

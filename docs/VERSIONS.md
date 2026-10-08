@@ -142,9 +142,11 @@ Measured with `compileJava`:
 | 1.21.4 | 144 | the above plus `ARGB`/`RenderPipelines` |
 | 1.21.1 | 166 | the same as 1.21.4 |
 
-`versions/1218x` (1.21.5 – 1.21.8) already exists with the renames applied, but **does not compile
-yet**: the loading screen has to be driven from `LevelLoadStatusManager` and the HUD ticked from
-`Minecraft#tick` (the screen has no `tick` there).
+The `versions/1218x` project from that attempt was **removed** — it never compiled: the loading screen
+would have to be driven from `LevelLoadStatusManager` and the HUD ticked from `Minecraft#tick` (the
+screen has no `tick` there). If a leftover
+`dopes-seamless-loading-screen-2.0+1.21.6-1.21.7-1.21.8.jar` is still sitting in a 1.21.6 – 1.21.8
+instance's `mods` folder, delete it — that build is unsupported and predates the working code.
 
 ## Verification
 

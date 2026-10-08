@@ -8,6 +8,11 @@
     "dope_ee"
   ],
   "license": "MIT",
+  "contact": {
+    "homepage": "https://modrinth.com/mod/dopes-seamless-loading-screen",
+    "sources": "https://github.com/zomb1ch/dopes-seamless-loading-screen",
+    "issues": "https://github.com/zomb1ch/dopes-seamless-loading-screen/issues"
+  },
   "icon": "assets/dopes_seamless_loading_screen/icon.png",
   "environment": "client",
   "entrypoints": {
