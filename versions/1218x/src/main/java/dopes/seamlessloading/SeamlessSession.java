@@ -112,7 +112,7 @@ public final class SeamlessSession {
 		serverAddress = null;
 		serverScreenshot = null;
 
-		String dimension = minecraft.level.dimension().ResourceLocation().toString();
+		String dimension = minecraft.level.dimension().location().toString();
 		double x = minecraft.player.getX();
 		double y = minecraft.player.getY();
 		double z = minecraft.player.getZ();

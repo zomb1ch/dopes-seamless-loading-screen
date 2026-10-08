@@ -138,3 +138,8 @@ sourceSets {
 		resources.srcDirs = ['../../src/main/resources', 'src/main/resources']
 	}
 }
+
+base {
+	archivesName = project.archives_base_name
+}
+

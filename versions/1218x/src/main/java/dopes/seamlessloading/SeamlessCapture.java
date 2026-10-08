@@ -108,7 +108,7 @@ public final class SeamlessCapture {
 			return;
 		}
 
-		SeamlessServerPositions.remember(serverData.ip, minecraft.level.dimension().ResourceLocation().toString(),
+		SeamlessServerPositions.remember(serverData.ip, minecraft.level.dimension().location().toString(),
 				minecraft.player.getX(), minecraft.player.getY(), minecraft.player.getZ());
 	}
 
