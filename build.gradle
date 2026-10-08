@@ -33,6 +33,17 @@ loom {
 	}
 }
 
+group = project.maven_group
+
+// Имя готового jar: <archives_base_name>-<mod_version>+<версии Minecraft>.jar.
+// Версии Minecraft берутся из gradle.properties (minecraft_versions, через запятую), поэтому
+// расширить пул поддерживаемых версий можно, не меняя этот файл.
+def minecraftVersions = project.minecraft_versions.split(',')
+		.collect { it.trim() }
+		.findAll { !it.isEmpty() }
+		.join('-')
+version = "${project.mod_version}+${minecraftVersions}"
+
 dependencies {
 	// Minecraft + Mojang official mappings (через intermediary)
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"

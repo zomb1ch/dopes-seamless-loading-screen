@@ -4,9 +4,11 @@
 
 # dope's Seamless Loading Screen
 
-Takes a screenshot of the game when you leave a world or a server and shows it again on the loading
-screen when you come back. Instead of a generic *"Loading terrain..."* you see the place you are
-returning to — blurred at first, then sharpening while the world fades in.
+Turns leaving a world or a server and coming back into one smooth, seamless animated sequence, and
+gives the loading screen a fresh look. A screenshot of the place you are leaving is taken on the way
+out; on the way back in it fades in over the Minecraft menu, covers the whole load and melts into the
+world. Instead of a generic *"Loading terrain..."* you see the place you are returning to — blurred
+at first, then sharpening while the world fades in.
 
 **Client-side only.** Nothing has to be installed on the server, and it works on any server that
 does not have the mod.
@@ -21,6 +23,10 @@ does not have the mod.
 
 ## Features
 
+- **Seamless transition into and out of your world.** Entering a world or a server from the menu, and
+  going back to the menu, is a single smooth animated sequence: the screenshot fades in over the
+  menu, stays on top for the whole load (hiding the vanilla screens in between) and melts into the
+  world. No flashing, no jumping screens.
 - **Screenshot on exit, picture on rejoin.** The screenshot is captured the moment you leave a
   singleplayer world, disconnect from a server or close the game, and it is displayed again while
   the world loads.
@@ -35,11 +41,13 @@ does not have the mod.
   never fade into an empty world. Void spawns and registration lobbies are detected and released by
   a grace period instead of hanging.
 - **Min / max show time.** Never flashes by too quickly, never hangs forever.
-- **Own loading screen.** The vanilla text, chunk map and progress bar are replaced by the mod's own
-  animated text/icon and a smooth progress bar that fills up while the world and its chunks load.
+- **Refreshed loading screen.** The vanilla text, chunk map and progress bar are replaced by the
+  mod's own animated text and icon plus a smooth progress bar that fills up while the world and its
+  chunks load. It can be turned off to keep the vanilla look.
 - **Server position check.** The server screenshot is only shown when you rejoin at (roughly) the
   same spot; if the server drops you into a lobby, the slideshow is shown instead.
-- **Fully configurable** through Mod Menu, with an English and a Russian interface.
+- **Fully configurable** through Mod Menu, with 10 localizations: English, Russian, Ukrainian,
+  German, Spanish, French, Italian, Polish, Brazilian Portuguese and Simplified Chinese.
 
 ## Requirements
 
@@ -54,7 +62,7 @@ does not have the mod.
 ## Installation
 
 1. Install Fabric Loader for Minecraft 1.21.11.
-2. Put the mod jar into your `mods` folder.
+2. Put the mod jar (for example `dopes-seamless-loading-screen-2.0+1.21.11.jar`) into your `mods` folder.
 3. Install Fabric API and YetAnotherConfigLib as well.
 4. Mod Menu is optional but recommended — the settings screen is opened through it.
 
@@ -105,7 +113,7 @@ cd dopes-seamless-loading-screen
 ./gradlew build
 ```
 
-The jar is written to `build/libs/dopes-seamless-loading-screen.jar`.
+The jar is written to `build/libs/dopes-seamless-loading-screen-<mod version>+<Minecraft version>.jar`.
 
 ## Links
 
@@ -126,9 +134,11 @@ modify and include in modpacks.
 
 ## Русский
 
-Делает скриншот игры при выходе из мира или с сервера и показывает его снова на экране загрузки
-при повторном входе. Вместо безликого *«Loading terrain…»* вы видите то место, куда возвращаетесь:
-сначала размытым, а затем всё более резким, пока проявляется мир.
+Превращает выход из мира или с сервера и возвращение обратно в одну плавную бесшовную анимацию и
+обновляет вид экрана загрузки. Снимок того места, откуда вы уходите, делается на выходе; при
+возвращении он плавно проявляется поверх меню Minecraft, держится всю загрузку и растворяется в мире.
+Вместо безликого *«Loading terrain…»* вы видите то место, куда возвращаетесь: сначала размытым, а
+затем всё более резким, пока проявляется мир.
 
 **Только клиент.** На сервере мод ставить не нужно, и он работает на серверах, где мода нет.
 
@@ -137,6 +147,9 @@ modify and include in modpacks.
 
 ### Возможности
 
+- **Бесшовный переход в мир и обратно.** Вход в мир или на сервер из меню и возвращение в меню — одна
+  плавная анимация: скриншот проявляется поверх меню, держится всю загрузку (скрывая промежуточные
+  ванильные экраны) и растворяется в мире. Ничего не мелькает и не перескакивает.
 - **Скриншот на выходе, картинка на входе.** Снимок делается в момент выхода из одиночного мира,
   отключения от сервера или закрытия игры, и снова показывается, пока мир загружается.
 - **Анимация «размытие → резкость».** Скриншот появляется полностью размытым и плавно
@@ -150,11 +163,13 @@ modify and include in modpacks.
   в пустом мире. Спавн в пустоте, регистрация и лобби определяются и отпускаются по таймауту —
   зависания нет.
 - **Мин. и макс. время показа.** Экран не мелькнёт слишком быстро и не залипнет навсегда.
-- **Своё оформление экрана загрузки.** Ванильные текст, карта чанков и шкала заменены собственными
-  анимированными текстом и иконкой и плавной шкалой, которая заполняется во время загрузки мира и чанков.
+- **Обновлённый вид экрана загрузки.** Ванильные текст, карта чанков и шкала заменены собственными
+  анимированными текстом и иконкой и плавной шкалой, которая заполняется во время загрузки мира и
+  чанков. Настройку можно выключить и оставить ванильный вид.
 - **Проверка места на сервере.** Скриншот показывается только если вы вернулись примерно на то же место;
   если сервер забросил вас в лобби — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.
-- **Всё настраивается** через Mod Menu, есть русский и английский интерфейс.
+- **Всё настраивается** через Mod Menu, есть 10 локализаций: английская, русская, украинская, немецкая,
+  испанская, французская, итальянская, польская, бразильская португальская и упрощённая китайская.
 
 ### Требования
 
@@ -169,7 +184,7 @@ modify and include in modpacks.
 ### Установка
 
 1. Установите Fabric Loader для Minecraft 1.21.11.
-2. Положите jar мода в папку `mods`.
+2. Положите jar мода (например, `dopes-seamless-loading-screen-2.0+1.21.11.jar`) в папку `mods`.
 3. Установите также Fabric API и YetAnotherConfigLib.
 4. Mod Menu не обязателен, но рекомендуется — через него открывается экран настроек.
 
@@ -217,7 +232,7 @@ cd dopes-seamless-loading-screen
 ./gradlew build
 ```
 
-Готовый jar появится в `build/libs/dopes-seamless-loading-screen.jar`.
+Готовый jar появится в `build/libs/dopes-seamless-loading-screen-<версия мода>+<версия Minecraft>.jar`.
 
 ### Ссылки
 

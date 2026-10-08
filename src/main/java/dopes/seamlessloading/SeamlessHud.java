@@ -14,6 +14,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Optional;
 
 /**
@@ -201,7 +202,7 @@ public final class SeamlessHud {
 	}
 
 	private static void drawFrame(GuiGraphics graphics, Sprite sprite, int x, int y, float alpha) {
-		int frame = (int) ((Util.getMillis() / FRAME_MILLIS) % sprite.frames());
+		int frame = sprite.sheetFrame((int) ((Util.getMillis() / FRAME_MILLIS) % sprite.frames()));
 		// Frames are laid out left to right first, then row by row.
 		int column = frame % sprite.columns();
 		int row = frame / sprite.columns();
@@ -275,27 +276,73 @@ public final class SeamlessHud {
 				image = NativeImage.read(in);
 			}
 
+			int[] order = framesWithPixels(image, frameWidth, frameHeight);
+			if (order.length == 0) {
+				DopesSeamlessLoadingScreen.LOGGER.warn("[Seamless] The sprite {} has no visible frames", path);
+				return null;
+			}
+
 			minecraft.getTextureManager().register(id, new DynamicTexture(() -> "Seamless sprite", image));
-			return new Sprite(id, image.getWidth(), image.getHeight(), frameWidth, frameHeight);
+			return new Sprite(id, image.getWidth(), image.getHeight(), frameWidth, frameHeight, order);
 		} catch (Exception e) {
 			DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to read the sprite {}", path, e);
 			return null;
 		}
 	}
 
-	/** One sprite sheet: frames are laid out left to right, then row by row. */
-	private record Sprite(Identifier id, int sheetWidth, int sheetHeight, int frameWidth, int frameHeight) {
+	/**
+	 * The frames of a sheet that contain at least one visible pixel, in sheet order. Sheets often have
+	 * unused cells (usually at the end, but sometimes in the middle) and animating over those would
+	 * show empty gaps, so they are left out here.
+	 */
+	private static int[] framesWithPixels(NativeImage image, int frameWidth, int frameHeight) {
+		int columns = Math.max(1, image.getWidth() / frameWidth);
+		int rows = Math.max(1, image.getHeight() / frameHeight);
+		int[] order = new int[columns * rows];
+		int count = 0;
+
+		for (int index = 0; index < order.length; index++) {
+			int column = index % columns;
+			int row = index / columns;
+			if (hasPixels(image, column * frameWidth, row * frameHeight, frameWidth, frameHeight)) {
+				order[count++] = index;
+			}
+		}
+
+		return Arrays.copyOf(order, count);
+	}
+
+	/** {@code true} if at least one pixel of the frame is not fully transparent. */
+	private static boolean hasPixels(NativeImage image, int startX, int startY, int width, int height) {
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				if (ARGB.alpha(image.getPixel(startX + x, startY + y)) != 0) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * One sprite sheet: frames are laid out left to right, then row by row. Empty cells of the sheet
+	 * are not part of the animation.
+	 */
+	private record Sprite(Identifier id, int sheetWidth, int sheetHeight, int frameWidth, int frameHeight, int[] order) {
 
 		int columns() {
 			return Math.max(1, this.sheetWidth / this.frameWidth);
 		}
 
-		int rows() {
-			return Math.max(1, this.sheetHeight / this.frameHeight);
+		/** How many frames the animation has. */
+		int frames() {
+			return this.order.length;
 		}
 
-		int frames() {
-			return columns() * rows();
+		/** Sheet index of the animation frame with the given number. */
+		int sheetFrame(int frame) {
+			return this.order[frame];
 		}
 
 		int width() {
