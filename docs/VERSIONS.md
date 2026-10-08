@@ -11,7 +11,8 @@ three.
 | **1.21.9 – 1.21.11** | **Supported by the root jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
 | 1.21 – 1.21.8 | Needs separate code | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld(Component)` do not exist yet, and `LevelLoadingScreen.Reason` has a different shape. |
 | **26.1 – 26.1.2** | **Supported by the `versions/26x` jar** | Minecraft 26.x ships **unobfuscated**, so it needs the no-remapping Loom and its own sources — see below. |
-| **26.2 – 26.3** | **Supported by the `versions/263x` jar** | Same unobfuscated rule; `Gui` owns the screen now and `GameRenderer` the main render target — see below. |
+| **26.2** | **Supported by the `versions/262x` jar** | Unobfuscated; `Gui` owns the screen and `GameRenderer` the main render target — see below. |
+| **26.3** | **Supported by the `versions/263x` jar** | The same, plus `RenderPipeline` moved to another package in 26.3, so the descriptor of `RenderPipelines.GUI_TEXTURED` differs — 26.2 and 26.3 cannot share one jar. |
 
 ## The 26.x build
 
@@ -19,7 +20,8 @@ three.
 
 ```
 gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar
-gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.0+26.2-26.3.jar
+gradlew -p versions/262x build     ->  versions/262x/build/libs/dopes-seamless-loading-screen-2.0+26.2.jar
+gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.0+26.3.jar
 gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar
 ```
 
@@ -104,7 +106,8 @@ What this line changed, and how it is handled:
 | `Minecraft#setScreen` | `Minecraft#setScreenAndShow`, `Gui#setScreen` | `minecraft.gui.setScreen(...)` |
 | `Minecraft#getMainRenderTarget` | `GameRenderer#mainRenderTarget` | looked up reflectively in `SeamlessCapture`, so the same file works on 1.21.x, 26.1 and 26.2/26.3 |
 | `Util.getPlatform().openPath` | removed | `java.awt.Desktop` in `SeamlessConfigScreen` (works on every version) |
-| `com.mojang.blaze3d.textures.FilterMode` | moved to `com.mojang.renderpearl.api.textures.FilterMode` in 26.3 | looked up by name in `SeamlessTexture`, so one jar covers 26.2 **and** 26.3 |
+| `com.mojang.blaze3d.textures.FilterMode` | moved to `com.mojang.renderpearl.api.textures.FilterMode` in 26.3 | looked up by name in `SeamlessTexture` |
+| `RenderPipelines.GUI_TEXTURED` (field type `com.mojang.blaze3d.pipeline.RenderPipeline`) | `RenderPipeline` moved to another package in 26.3 | nothing can be shimmed: the bytecode looks the field up by name **and descriptor**, so 26.2 and 26.3 each get their own jar (`versions/262x`, `versions/263x`) |
 
 Every mixin target is unchanged from 26.1, so no injection needed touching.
 

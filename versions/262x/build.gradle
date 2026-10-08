@@ -1,0 +1,157 @@
+plugins {
+	// MC 26.x необфусцирован — нужен вариант Loom БЕЗ remapping (в отличие от корневого проекта,
+	// который собирается под 1.21.x через intermediary).
+	id 'net.fabricmc.fabric-loom' version "${loom_version}"
+	id 'maven-publish'
+}
+
+repositories {
+	// Modrinth Maven — YetAnotherConfigLib и ModMenu
+	maven {
+		name = 'Modrinth'
+		url = 'https://api.modrinth.com/maven'
+		content {
+			includeGroup 'maven.modrinth'
+		}
+	}
+
+	mavenCentral()
+
+	// Quilt parsers (зависимость YACL) — нужны только для запуска в dev-окружении
+	maven {
+		name = 'Quilt'
+		url = 'https://maven.quiltmc.org/repository/release'
+	}
+}
+
+loom {
+	// Клиентский мод — один source set, без разделения client/server
+	mods {
+		"${mod_id}" {
+			sourceSet sourceSets.main
+		}
+	}
+}
+
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+// Версии Minecraft, под которые собирается этот jar (через запятую). Сборка идёт против ПОСЛЕДНЕЙ
+// версии из списка, а имя файла и зависимость minecraft в fabric.mod.json собираются из диапазона.
+def minecraftVersionList = project.minecraft_versions.split(',')
+		.collect { it.trim() }
+		.findAll { !it.isEmpty() }
+def minecraftRange = ">=${minecraftVersionList.first()} <=${minecraftVersionList.last()}"
+def minecraftName = minecraftVersionList.size() == 1
+		? minecraftVersionList.first()
+		: "${minecraftVersionList.first()}-${minecraftVersionList.last()}"
+
+version = "${project.mod_version}+${minecraftName}"
+
+// Общие исходники мода лежат в корне репозитория: их правит один файл на обе сборки. Специфичные
+// для 26.x файлы перечислены ниже и живут в versions/26x/src/main/java — остальное копируется из
+// корня в build/generated при сборке.
+def sharedJavaDir = file('../../src/main/java')
+def generatedSharedJava = layout.buildDirectory.dir('generated/sources/shared/java')
+def forkedFiles = [
+		'dopes/seamlessloading/SeamlessBackground.java',
+		'dopes/seamlessloading/SeamlessCurtain.java',
+		'dopes/seamlessloading/SeamlessFadeScreen.java',
+		'dopes/seamlessloading/SeamlessHud.java',
+		'dopes/seamlessloading/SeamlessTexture.java',
+		'dopes/seamlessloading/mixin/CreateWorldScreenMixin.java',
+		'dopes/seamlessloading/mixin/LevelLoadingScreenMixin.java',
+		'dopes/seamlessloading/mixin/MinecraftClientMixin.java',
+		'dopes/seamlessloading/mixin/ScreenMixin.java',
+		'dopes/seamlessloading/mixin/WorldOpenFlowsMixin.java'
+]
+
+tasks.register('syncSharedSources', Sync) {
+	from sharedJavaDir
+	into layout.buildDirectory.dir('generated/sources/shared/java')
+	exclude forkedFiles
+}
+
+sourceSets {
+	main {
+		// Провайдер задачи (а не путь) — так Gradle сам знает, что каталог сначала надо собрать.
+		java.srcDirs = [tasks.named('syncSharedSources'), 'src/main/java']
+		resources.srcDirs = ['../../src/main/resources', 'src/main/resources']
+	}
+}
+
+dependencies {
+	// Minecraft без маппингов: игра не обфусцирована, remapping не нужен
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+
+	// В варианте Loom без remapping нет конфигураций mod* — обычные implementation/compileOnly.
+	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	// Fabric API не нужен: мод использует только Fabric Loader (ClientModInitializer, FabricLoader).
+
+	// YACL (конфиг) — обязательная зависимость
+	implementation "maven.modrinth:yacl:${project.yacl_version}"
+
+	// ModMenu — только для компиляции entrypoint; в рантайме опционален
+	compileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
+
+	// YACL поставляет эти библиотеки как nested-jars (JiJ). В dev-окружении Fabric Loader
+	// их не распаковывает, поэтому добавляем их вручную — в собранный мод они не попадают.
+	implementation "org.quiltmc.parsers:json:0.2.1"
+	implementation "org.quiltmc.parsers:gson:0.2.1"
+	implementation "com.twelvemonkeys.common:common-image:3.12.0"
+	implementation "com.twelvemonkeys.common:common-io:3.12.0"
+	implementation "com.twelvemonkeys.common:common-lang:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-core:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-metadata:3.12.0"
+	implementation "com.twelvemonkeys.imageio:imageio-webp:3.12.0"
+}
+
+processResources {
+	def modVersion = project.mod_version
+	inputs.property "mod_version", modVersion
+	// Без этого Gradle считает задачу актуальной и оставляет в jar старый диапазон версий.
+	inputs.property "minecraft_range", minecraftRange
+
+	filesMatching("fabric.mod.json") {
+		expand "mod_version": modVersion, "minecraft_range": minecraftRange
+	}
+
+	// The sprite sheets live in ./sprites; bundle them into the mod resources.
+	from("../../sprites") {
+		into "assets/${mod_id}/gui"
+		include "*.png"
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 21
+	it.options.encoding = 'UTF-8'
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+jar {
+	from("../../LICENSE") {
+		rename { "${it}_${project.base.archivesName.get()}" }
+	}
+}
+
+publishing {
+	publications {
+		create("mavenJava", MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+	}
+}
