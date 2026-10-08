@@ -61,7 +61,7 @@ Other versions need their own build:
 |---|---|
 | 1.21 – 1.21.8 | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld` do not exist yet — that needs different code paths, not a shim. |
 | 26.1 – 26.1.2 | A second jar, built by the `versions/26x` project: Minecraft 26.x ships unobfuscated, so it needs the no-remapping Loom and its own sources. |
-| 26.2 – 26.3 | Another API line — needs its own port. |
+| 26.2 – 26.3 | Another jar from the `versions/263x` project, same unobfuscated rule. |
 
 Measurements and how to add a version: [`docs/VERSIONS.md`](docs/VERSIONS.md).
 
@@ -187,7 +187,7 @@ Minecraft, держится всю загрузку и растворяется 
 |---|---|
 | 1.21 – 1.21.8 | Ещё нет `LevelLoadTracker`, `ARGB`, `RenderPipelines` и `Minecraft#disconnectFromWorld` — там нужен другой код, а не заглушка. |
 | 26.1 – 26.1.2 | Отдельный jar из проекта `versions/26x`: Minecraft 26.x необфусцирован, поэтому нужен Loom без remapping и свои исходники. |
-| 26.2 – 26.3 | Ещё одна линия API — нужен отдельный порт. |
+| 26.2 – 26.3 | Ещё один jar из проекта `versions/263x`, правило то же (необфусцирован). |
 
 Замеры и как добавить версию: [`docs/VERSIONS.md`](docs/VERSIONS.md).
 

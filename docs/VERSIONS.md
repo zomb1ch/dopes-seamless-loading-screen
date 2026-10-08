@@ -11,7 +11,7 @@ three.
 | **1.21.9 – 1.21.11** | **Supported by the root jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
 | 1.21 – 1.21.8 | Needs separate code | `LevelLoadTracker`, `ARGB`, `RenderPipelines` and `Minecraft#disconnectFromWorld(Component)` do not exist yet, and `LevelLoadingScreen.Reason` has a different shape. |
 | **26.1 – 26.1.2** | **Supported by the `versions/26x` jar** | Minecraft 26.x ships **unobfuscated**, so it needs the no-remapping Loom and its own sources — see below. |
-| 26.2 – 26.3 | Needs its own pass | Another API line: `Util` and `FilterMode` moved again, `Minecraft#setScreen` became `setScreenAndShow` and `getMainRenderTarget` was renamed. |
+| **26.2 – 26.3** | **Supported by the `versions/263x` jar** | Same unobfuscated rule; `Gui` owns the screen now and `GameRenderer` the main render target — see below. |
 
 ## The 26.x build
 
@@ -19,6 +19,7 @@ three.
 
 ```
 gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.0+26.1-26.1.2.jar
+gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.0+26.2-26.3.jar
 gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.0+1.21.9-1.21.10-1.21.11.jar
 ```
 
@@ -90,39 +91,22 @@ paths, not just shims.
    * keep the shared sources in `src/main` and put the version-specific files in a separate source
      set, or keep a separate branch, so the two clusters can still be developed together.
 
-## Porting to 26.2 / 26.3 (not done yet)
+## Porting to 26.2 / 26.3
 
-26.2 and 26.3 are a **different API line** from 26.1 and still need their own pass. Measured with
-`compileJava` against each version:
+**Done** — `versions/263x` builds a jar for the 26.2/26.3 line, and the same sources compile against
+both versions (checked with `compileJava` against 26.2 and 26.3).
 
-| Version | Errors | What is missing |
+What this line changed, and how it is handled:
+
+| 26.1 | 26.2 / 26.3 | How it is handled |
 |---|---|---|
-| 26.2 | 16 | `Minecraft#screen` (10×), `Minecraft#setScreen` (4×), `Minecraft#getMainRenderTarget` (2×) |
-| 26.3 | 24 | the same, plus `com.mojang.blaze3d.textures.FilterMode` (moved to `com.mojang.renderpearl.api.textures.FilterMode`) and `Util.getPlatform().openPath(Path)` |
+| `Minecraft#screen` | moved into `Gui` | `minecraft.gui.screen()` |
+| `Minecraft#setScreen` | `Minecraft#setScreenAndShow`, `Gui#setScreen` | `minecraft.gui.setScreen(...)` |
+| `Minecraft#getMainRenderTarget` | `GameRenderer#mainRenderTarget` | looked up reflectively in `SeamlessCapture`, so the same file works on 1.21.x, 26.1 and 26.2/26.3 |
+| `Util.getPlatform().openPath` | removed | `java.awt.Desktop` in `SeamlessConfigScreen` (works on every version) |
+| `com.mojang.blaze3d.textures.FilterMode` | moved to `com.mojang.renderpearl.api.textures.FilterMode` in 26.3 | looked up by name in `SeamlessTexture`, so one jar covers 26.2 **and** 26.3 |
 
-What was already pinned down while investigating:
-
-* the current screen moved into `Gui`: use **`minecraft.gui.screen()`** and
-  **`minecraft.gui.setScreen(...)`**; `Minecraft` itself only has `setScreenAndShow(Screen)` left and
-  no screen field or getter;
-* `Util$OS` has no `open*` method in 26.3, so the "Open Folder" button needs another way to open a
-  path (plain `java.awt.Desktop` is version independent);
-* `FilterMode` is only used for the reflective sampler lookup, so looking it up by name instead of by
-  class would let one jar cover 26.2 and 26.3 at once;
-* **every mixin target is unchanged** from 26.1, so the fork only needs the points above:
-  `Screen#extractRenderState` / `extractBackground` / `extractRenderStateWithTooltipAndSubtitles`,
-  `LevelLoadingScreen#tick` / `extractRenderState` / `extractBackground` / `onClose`,
-  `WorldOpenFlows#openWorld` / `createLevelFromExistingSettings` / `createFreshLevel` /
-  `openWorldLoadLevelStem`, `CreateWorldScreen#createNewWorld`, `LevelLoadTracker#isLevelReady`.
-
-The one open question is where the main render target lives now: `Minecraft#getMainRenderTarget()` is
-gone and it is not on `Minecraft`, `Window`, `RenderSystem`, `RenderTarget` or `MainTarget` either.
-`Screenshot#takeScreenshot(RenderTarget, Consumer)` and `Screenshot#grab(Minecraft, boolean)` still
-exist, so the capture code itself is fine — it just needs the target. Generating the sources
-(`gradlew -p versions/263x genSources`) answers that quickly.
-
-To build it: copy `versions/26x` to `versions/263x`, point `gradle.properties` at 26.2/26.3
-(`yacl_version=3.9.7+26.2-fabric`, `modmenu_version=20.0.3`), and work through the list above.
+Every mixin target is unchanged from 26.1, so no injection needed touching.
 
 ## Verification
 

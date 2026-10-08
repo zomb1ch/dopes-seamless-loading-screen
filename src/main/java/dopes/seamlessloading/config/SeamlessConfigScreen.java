@@ -18,7 +18,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Util;
-
+import java.awt.Desktop;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -141,7 +141,8 @@ public final class SeamlessConfigScreen {
 		Path directory = SeamlessScreenshots.slideshowDirectory();
 		try {
 			Files.createDirectories(directory);
-			Util.getPlatform().openPath(directory);
+			// Открываем папку средствами Java: Util.getPlatform().openPath(...) убрали в 26.3.
+			Desktop.getDesktop().open(directory.toFile());
 		} catch (Exception e) {
 			DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to open {}", directory, e);
 		}

@@ -5,6 +5,7 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Screenshot;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
@@ -158,7 +159,7 @@ public final class SeamlessCapture {
 
 	private static void capture(Path target) {
 		Minecraft minecraft = Minecraft.getInstance();
-		RenderTarget renderTarget = minecraft.getMainRenderTarget();
+		RenderTarget renderTarget = mainRenderTarget(minecraft);
 		if (renderTarget == null) {
 			return;
 		}
@@ -177,5 +178,24 @@ public final class SeamlessCapture {
 				DopesSeamlessLoadingScreen.LOGGER.error("[Seamless] Unable to save the screenshot to {}", target, e);
 			}
 		}));
+	}
+
+	/**
+	 * The main render target. Up to 26.1 this is {@code Minecraft#getMainRenderTarget()}; from 26.2 it
+	 * moved to {@code GameRenderer#mainRenderTarget()}, so both are looked up reflectively and the mod
+	 * keeps working on either.
+	 */
+	private static RenderTarget mainRenderTarget(Minecraft minecraft) {
+		try {
+			return (RenderTarget) Minecraft.class.getMethod("getMainRenderTarget").invoke(minecraft);
+		} catch (Throwable ignored) {
+			// 26.2 and newer
+		}
+
+		try {
+			return (RenderTarget) GameRenderer.class.getMethod("mainRenderTarget").invoke(minecraft.gameRenderer);
+		} catch (Throwable ignored) {
+			return null;
+		}
 	}
 }
