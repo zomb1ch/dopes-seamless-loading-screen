@@ -6,6 +6,7 @@
 
 # Binary files must never be touched
 *.png binary
+*.gif binary
 *.jar binary
 *.zip binary
 *.gz binary
