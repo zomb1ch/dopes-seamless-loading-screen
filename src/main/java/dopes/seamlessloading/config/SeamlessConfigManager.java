@@ -77,7 +77,7 @@ public final class SeamlessConfigManager {
 
 	private static void sanitize() {
 		SeamlessConfig config = instance;
-		config.blurStrength = clamp(config.blurStrength, 0, 64);
+		config.blurStrength = clamp(config.blurStrength, 0, 256);
 		config.backgroundDim = clamp(config.backgroundDim, 0, 100);
 		config.fadeDuration = clamp(config.fadeDuration, 0, 10000);
 		config.imageSize = clamp(config.imageSize, 10, 100);

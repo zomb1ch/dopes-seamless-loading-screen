@@ -12,6 +12,9 @@ public class SeamlessConfig {
 	 */
 	public boolean customLoadingScreen = true;
 
+	/** Show the little tip (in the bundled uni 05_53 font) in the top left corner while loading. */
+	public boolean loadingTips = true;
+
 	/**
 	 * Only show the server screenshot when you rejoin at (roughly) the same spot as last time;
 	 * otherwise the slideshow is shown. Servers that drop you into a lobby on every join would
@@ -40,4 +43,6 @@ public class SeamlessConfig {
 
 	public int slideshowSpeed = 5000;
 	public int slideshowFadeSpeed = 1500;
+
 }
+

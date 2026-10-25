@@ -1,5 +1,112 @@
 # Changelog
 
+## 2.2
+
+**Loading tips in the corner, a settings preview, and a smarter loading screen.**
+
+### Added
+
+- **Loading tips.** A short tip — a Minecraft fun fact or a joke — is shown in the top left
+  corner of the loading screen, drawn in the bundled uni 05_53 pixel font (the same font the rest
+  of the mod's text is styled after). Two to three lines at most, half the screen wide, with a little
+  dash on the left. Can be turned off in the settings. 50 tips are translated for all ten locales.
+- **New in this version: animated previews for the settings.** Custom loading screen, chunk counter,
+  tips, waiting for all chunks, blur, dim, blur animation speed and fade duration each show an
+  animated preview of the setting right in their description - generated with the mod's actual
+  rendering pipeline, not a mock-up.
+- New settings groups ("Loading Screen", "Transition Screens") and translations for the new
+  settings in all ten languages.
+
+### Changed
+
+- **Waiting for all chunks now only runs while a real screenshot is on screen.** Without one — the
+  world has no screenshot yet, or a server that shows the slideshow instead — the loading screen
+  closes as soon as the world is ready, like vanilla. (The min / max show times are unchanged.)
+- **Strong dim settings no longer darken the picture twice.** During the handover between the
+  auxiliary and the main loading screen the overlay used to draw its dim on top of the loading
+  screen's own dim, which showed as a clearly visible pulse on dark settings. From 50% dim up, the
+  overlay now leaves the dim to the loading screen below it, so the picture stays evenly dark.
+- **The settings are regrouped** into General / Loading Screen / Transition Screens / Display /
+  Timing / Slideshow, so every option lives with its own kind.
+
+### Fixed
+
+- **The reset button icon in the settings is no longer tiny.** YACL (up to 3.8.x, the newest version
+  available for 1.21.9 – 1.21.11) draws the little ↻ of the per-option reset buttons with a thin
+  fallback glyph that reads as a dot. The mod now ships its own bold glyph for it, the same way
+  newer YACL versions fixed it on 26.x.
+- **The animated setting previews no longer tear into stripes and patches.** YACL draws every GIF
+  frame at the image origin and ignores the offset stored in the frame itself, while optimised GIFs
+  only keep the rectangle that actually changed — so the picture came apart. The previews are now
+  re-encoded with every frame covering the whole canvas, at the original 600 px width.
+- **Fades in the previews run smoothly now.** The source recordings change brightness in uneven
+  steps, so the previews are rebuilt frame by frame instead of being resampled as-is: intermediate
+  frames are interpolated, the overall brightness follows a smoothed curve, and frame delays vary —
+  a long hold is a single frame, a fast fade is a burst of short ones. Grain is reduced too, with a
+  light blur before quantisation and one shared palette without dithering.
+  `tools/reencode_previews.py` rebuilds them from the masters in `tools/preview-masters`.
+- **The preview atlases are freed when the settings close.** YACL builds an animated preview when the
+  screen opens, but keeps the finished atlas in a static cache until the game exits — for these
+  previews that adds up to several hundred megabytes of video memory that was never given back. The
+  mod now drops its own previews from that cache as soon as the settings screen closes; opening the
+  screen again loads them from scratch.
+
+---
+
+## 2.2 (Русский)
+
+**Подсказки в углу, предпросмотр настроек и более умный экран загрузки.**
+
+### Добавлено
+
+- **Подсказки при загрузке.** В левом верхнем углу экрана загрузки показывается короткая подсказка —
+  забавный факт или шутка о Minecraft — нарисованная пиксельным шрифтом uni 05_53, встроенным в
+  мод (тот же шрифт, в стиле которого оформлен остальной текст мода). Максимум две-три строки, до
+  половины ширины экрана, с чёрточкой слева. Отключается в настройках. Все 50 подсказок переведены
+  на десять языков.
+- **Новое в этой версии: анимированные превью настроек.** В описаниях своего экрана загрузки,
+  счётчика чанков, подсказок, ожидания всех чанков, силы размытия, затемнения, скорости анимации
+  размытия и времени fade анимации показывается анимированное превью соответствующей настройки -
+  сгенерированное настоящим конвейером рендера мода, а не нарисованное от руки.
+- Новые группы настроек («Экран загрузки», «Экраны переходов») и переводы новых настроек на все
+  десять языков.
+
+### Изменено
+
+- **Ожидание всех чанков теперь работает, только пока на экране настоящий скриншот.** Без него — у
+  мира ещё нет скриншота, или сервер показывает слайд-шоу — экран загрузки закрывается сразу, как
+  только мир готов, как в ванилле. (Мин./макс. время показа не изменились.)
+- **Сильное затемнение больше не затемняет картинку дважды.** При передаче от вспомогательного
+  экрана к основному оверлей рисовал своё затемнение поверх затемнения экрана загрузки, что на
+  тёмных настройках было видно как заметный скачок. От 50% затемнения и выше оверлей теперь
+  оставляет затемнение экрану загрузки под ним — картинка остаётся равномерно тёмной.
+- **Настройки перегруппированы** в «Основные» / «Экран загрузки» / «Экраны переходов» / «Отображение»
+  / «Тайминги» / «Слайд-шоу», чтобы каждая опция лежала среди своих.
+
+### Исправлено
+
+- **Иконка кнопки сброса в настройках больше не крошечная.** YACL (до 3.8.x — новее для
+  1.21.9 – 1.21.11 не выпускалось) рисует ↻ у кнопок сброса тонким запасным глифом, из-за чего
+  иконка читается как точка. Мод теперь приносит собственный жирный глиф для неё — так же, как это
+  починили в новых версиях YACL на 26.x.
+- **Анимированные превью настроек больше не разваливаются на полосы и пятна.** YACL рисует каждый
+  кадр GIF в начало картинки и игнорирует смещение, записанное в самом кадре, а оптимизированные GIF
+  хранят только изменившийся прямоугольник — поэтому картинка разъезжалась. Превью пересобраны так,
+  что каждый кадр занимает весь холст, в исходной ширине 600 px.
+- **Переходы в превью стали плавными.** В исходных записях яркость меняется неравномерными
+  ступенями, поэтому превью собираются заново, а не прореживаются как есть: промежуточные кадры
+  дорисовываются интерполяцией, общая яркость идёт по сглаженной кривой, а задержки кадров разные —
+  долгая пауза это один кадр, быстрый переход — серия коротких. Заодно стало меньше зернистости:
+  лёгкое размытие перед квантованием и одна общая палитра без дизеринга. Пересобрать их можно через
+  `tools/reencode_previews.py` из мастер-копий в `tools/preview-masters`.
+- **Атласы превью освобождаются при закрытии настроек.** YACL собирает анимированное превью при
+  открытии экрана, но готовый атлас держит в статическом кэше до выхода из игры — для этих превью
+  это несколько сотен мегабайт видеопамяти, которые раньше не возвращались. Теперь мод выкидывает
+  свои превью из этого кэша, как только экран настроек закрывается; при следующем открытии они
+  загружаются заново.
+
+---
+
 ## 2.1
 
 **The loading screen background is sharp again: the picture is no longer enlarged by the graphics card,

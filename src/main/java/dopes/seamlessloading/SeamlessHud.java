@@ -4,9 +4,13 @@ import com.mojang.blaze3d.platform.NativeImage;
 import dopes.seamlessloading.config.SeamlessConfig;
 import dopes.seamlessloading.config.SeamlessConfigManager;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
@@ -40,6 +44,16 @@ public final class SeamlessHud {
 	private static final int MARGIN = 20;
 	/** Gap between the progress bar and the text / icon above it. */
 	private static final int TEXT_GAP = 10;
+	/** Gap between the chunk counter and the loading icon; a bit wider than {@link #TEXT_GAP}. */
+	private static final int COUNTER_GAP = TEXT_GAP + 6;
+	/**
+	 * Optical centre of the icon's visible art, in px below the top of the frame. The frame is
+	 * 5x7 source px (25x35 GUI px) but only rows 0-4 have pixels, so the visible block is 25 px
+	 * tall and its centre is ~12 px below iconY, not the 17.5 px of the whole frame.
+	 */
+	private static final int ICON_VISIBLE_CENTER = 12;
+	/** Optical nudge: the digits look centred slightly lower than the sprite's geometric centre. */
+	private static final int COUNTER_NUDGE_DOWN = 2;
 	/** Thickness of the progress bar. */
 	private static final int BAR_HEIGHT = 8;
 	/** How long one animation frame is shown. */
@@ -82,6 +96,7 @@ public final class SeamlessHud {
 		lastAdvance = 0L;
 		finishing = false;
 		finishElapsed = 0.0F;
+		SeamlessTips.reset();
 	}
 
 	/**
@@ -180,15 +195,25 @@ public final class SeamlessHud {
 		int textY = barTop - TEXT_GAP - text.height();
 
 		drawFrame(graphics, text, MARGIN, textY, fade);
+		if (style != Style.SAVING) {
+			SeamlessTips.render(graphics, width, fade);
+		}
 
 		if (style != Style.LOADING) {
 			return;
 		}
 
 		Sprite icon = icon();
+		int iconX = width - MARGIN - icon.width();
+		int iconY = textY + (text.height() - icon.height()) / 2;
 		if (icon != null) {
-			int iconY = textY + (text.height() - icon.height()) / 2;
-			drawFrame(graphics, icon, width - MARGIN - icon.width(), iconY, fade);
+			drawFrame(graphics, icon, iconX, iconY, fade);
+		}
+
+		// Chunk counter sits to the left of the loading icon, same font as the tips,
+		// same gap (TEXT_GAP) as between the icon and the progress bar.
+		if (SeamlessConfigManager.get().chunkCounter) {
+			drawChunkCounter(graphics, iconX, iconY, fade);
 		}
 
 		advance();
@@ -229,6 +254,26 @@ public final class SeamlessHud {
 		if (filled > 0) {
 			graphics.fill(left, barTop, left + filled, barBottom, ARGB.white(alpha));
 		}
+	}
+
+	/**
+	 * Draws the optional chunk counter to the left of the loading icon, using the uni tip font,
+	 * digits only (no "чанки" word), scaled up to match the icon size.
+	 */
+	private static void drawChunkCounter(GuiGraphics graphics, int iconX, int iconY, float alpha) {
+		int loaded = SeamlessSession.loadedChunks();
+		int expected = SeamlessSession.expectedChunks();
+		if (loaded < 0 || expected <= 0) {
+			return;
+		}
+
+		String text = loaded + " / " + expected;
+		int width = SeamlessTips.chunkCounterWidth(text);
+		int x = iconX - COUNTER_GAP - width;
+		// Centre the digits on the icon's visible block, not on the whole 7-row frame.
+		int y = iconY + ICON_VISIBLE_CENTER + COUNTER_NUDGE_DOWN
+				- SeamlessTips.COUNTER_DIGITS_HEIGHT / 2;
+		SeamlessTips.drawChunkCounterText(graphics, text, x, y, alpha);
 	}
 
 	private static Sprite text(Style style) {

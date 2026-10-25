@@ -64,6 +64,10 @@ dependencies {
 	// ModMenu — только для компиляции entrypoint; в рантайме опционален
 	modCompileOnly "maven.modrinth:modmenu:${project.modmenu_version}"
 
+	// Только для запуска в dev-окружении (gradlew runClient): dev-версия YACL требует fabric-api.
+	// В собранный мод НЕ попадает (modLocalRuntime), в зависимостях мода fabric-api по-прежнему нет.
+	modLocalRuntime "net.fabricmc.fabric-api:fabric-api:0.140.0+1.21.11"
+
 	// YACL поставляет эти библиотеки как nested-jars (JiJ). В dev-окружении Fabric Loader
 	// их не распаковывает, поэтому добавляем их вручную — в собранный мод они не попадают.
 	implementation "org.quiltmc.parsers:json:0.2.1"
@@ -81,9 +85,10 @@ processResources {
 	inputs.property "mod_version", modVersion
 	// Без этого Gradle считает задачу актуальной и оставляет в jar старый диапазон версий.
 	inputs.property "minecraft_range", minecraftRange
+	inputs.property "modmenu_range", project.modmenu_range
 
 	filesMatching("fabric.mod.json") {
-		expand "mod_version": modVersion, "minecraft_range": minecraftRange
+		expand "mod_version": modVersion, "minecraft_range": minecraftRange, "modmenu_range": project.modmenu_range
 	}
 
 	// The sprite sheets live in ./sprites; bundle them into the mod resources.

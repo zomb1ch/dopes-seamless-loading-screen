@@ -40,11 +40,18 @@ does not have the mod.
 - **Chunk counter.** Optional `loaded / total` counter at the top of the screen.
 - **Wait for chunks.** The loading screen can stay open until the chunk count stops growing, so you
   never fade into an empty world. Void spawns and registration lobbies are detected and released by
-  a grace period instead of hanging.
+  a grace period instead of hanging. It only runs while a real screenshot is on screen — with the
+  slideshow (or without a picture at all) the screen closes as soon as the world is ready.
 - **Min / max show time.** Never flashes by too quickly, never hangs forever.
 - **Refreshed loading screen.** The vanilla text, chunk map and progress bar are replaced by the
   mod's own animated text and icon plus a smooth progress bar that fills up while the world and its
   chunks load. It can be turned off to keep the vanilla look.
+- **Loading tips.** A short tip — a useful hint, a fun fact or a joke — sits in the top left corner
+  of the loading screen, drawn in the bundled uni 05_53 pixel font. Two to three lines at most, half
+  the screen wide, with a little dash on the left. Can be turned off in the settings.
+- **Settings with picture previews.** The custom loading screen, chunk counter, tips, waiting for all
+  chunks, blur, dim, blur animation speed and fade duration settings each show an animated preview of
+  the setting, generated with the mod's actual rendering pipeline.
 - **Server position check.** The server screenshot is only shown when you rejoin at (roughly) the
   same spot; if the server drops you into a lobby, the slideshow is shown instead.
 - **Fully configurable** through Mod Menu, with 10 localizations: English, Russian, Ukrainian,
@@ -57,11 +64,11 @@ change between them. Download the file that matches your game:
 
 | Your Minecraft | Download |
 |---|---|
-| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar` |
-| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar` |
-| **26.2** | `dopes-seamless-loading-screen-2.1+26.2.jar` |
-| **26.3** | `dopes-seamless-loading-screen-2.1+26.3.jar` |
-| 1.21 – 1.21.8 | **Not supported.** The mod needs `LevelLoadTracker` (added in 1.21.9), `Identifier`, `ARGB` and `RenderPipelines`. **1.21.9 is the minimum.** |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.2+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.2+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.2+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.2+26.3.jar` |
+| 1.21.2 – 1.21.8 | **Not supported.** Unported intermediate versions. |
 
 Why several files: 1.21.x is obfuscated, so the mod is remapped through Fabric's intermediary names,
 while 26.x ships unobfuscated and needs a build without remapping; and between 26.2 and 26.3
@@ -102,21 +109,28 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 
 | Setting | Default | What it does |
 |---|---|---|
+| **General** | | |
 | Mod Enabled | on | Turns the whole mod on or off. |
 | Server Position Check | on | Remember where you were when you left a server, and only show the screenshot again when you rejoin at (roughly) the same spot. If you end up somewhere else (a lobby, another world, ...) the slideshow is shown instead, so the screenshot is never misleading. |
+| **Loading Screen** | | |
+| Custom Loading Screen | on | Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon, progress bar and tips. Off = the vanilla loading screen is shown. |
+| Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
+| Loading Tips | on | Show a short tip (a useful hint, a fun fact or a joke) in the top left corner of the loading screen, drawn in the bundled uni 05_53 pixel font. |
+| Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. Only active while a real screenshot is on screen: without one (or on a server that shows the slideshow instead) the screen closes as soon as the world is ready. |
+| **Transition Screens** | | |
 | Transition Screens | on | Show the screenshot (or slideshow) over the transition when entering a world or server and when leaving them. The screen fades in, starts the load and stays on top until the loading screen appears (hiding the screens in between), then fades out. Its blur and dim match the loading screen, but are static. |
 | Transition Fade Duration | 800 ms | How long the transition screen takes to appear and to disappear. The same for entering and leaving. 0 = no animation. |
-| Slideshow (no screenshot) | on | Show the slideshow when a world has no screenshot yet. |
-| Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. |
-| Custom Loading Screen | on | Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon and progress bar. Off = the vanilla loading screen is shown. |
-| Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
+| **Display** | | |
 | Blur Strength | 16 | How strongly the screenshot is blurred. 0 = no blur, max 64. |
 | Blur Animation Speed | 50% | How much of the fade the blur animation takes. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation. The slideshow never animates its blur. |
-| Background Dim | 35% | Darkening over the image. Applied at once, it does not fade in. |
+| Background Dim | 35% | Darkening over the image. Applied at once, it does not fade in. On strong settings (from 50% up) the handover between the auxiliary and the main loading screen no longer darkens the picture twice. |
 | Fade Duration | 800 ms | How long the screenshot takes to fade out once the world is ready. |
 | Image Resolution | 100% | Resolution the screenshot is sampled at. The picture is always scaled to the screen, so a lower value only makes it softer. |
+| **Timing** | | |
 | Min Show Time | 2000 ms | Keep the loading screen visible for at least this long. |
 | Max Show Time | 30000 ms | Never keep the loading screen open longer than this. |
+| **Slideshow** | | |
+| Slideshow | on | Show the slideshow when a world has no screenshot yet. |
 | Slideshow Speed | 5000 ms | How often slideshow images change. |
 | Slideshow Fade Speed | 1500 ms | Cross-fade duration between two slideshow images. |
 
@@ -180,11 +194,17 @@ modify and include in modpacks.
 - **Счётчик чанков.** Необязательный счётчик «прогружено / всего» сверху экрана.
 - **Ожидание прогрузки чанков.** Экран держится, пока число чанков растёт, чтобы вы не проявлялись
   в пустом мире. Спавн в пустоте, регистрация и лобби определяются и отпускаются по таймауту —
-  зависания нет.
+  зависания нет. Работает, только когда на экране настоящий скриншот: без него (или на сервере со
+  слайд-шоу) экран закрывается, как только мир готов.
 - **Мин. и макс. время показа.** Экран не мелькнёт слишком быстро и не залипнет навсегда.
 - **Обновлённый вид экрана загрузки.** Ванильные текст, карта чанков и шкала заменены собственными
   анимированными текстом и иконкой и плавной шкалой, которая заполняется во время загрузки мира и
   чанков. Настройку можно выключить и оставить ванильный вид.
+- **Подсказки при загрузке.** В левом верхнем углу экрана загрузки — короткая подсказка: полезный
+  совет, забавный факт или шутка, нарисованная встроенным пиксельным шрифтом uni 05_53. Максимум
+  две-три строки, до половины ширины экрана, с чёрточкой слева. Отключается в настройках.
+- **Предпросмотр настроек.** Кнопка «Предпросмотр» в настройках показывает экран загрузки ровно так,
+  как он будет выглядеть с текущими настройками; клик листает подсказки.
 - **Проверка места на сервере.** Скриншот показывается только если вы вернулись примерно на то же место;
   если сервер забросил вас в лобби — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.
 - **Всё настраивается** через Mod Menu, есть 10 локализаций: английская, русская, украинская, немецкая,
@@ -197,11 +217,11 @@ modify and include in modpacks.
 
 | Твой Minecraft | Файл |
 |---|---|
-| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar` |
-| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar` |
-| **26.2** | `dopes-seamless-loading-screen-2.1+26.2.jar` |
-| **26.3** | `dopes-seamless-loading-screen-2.1+26.3.jar` |
-| 1.21 – 1.21.8 | **Не поддерживается.** Моду нужны `LevelLoadTracker` (появился в 1.21.9), `Identifier`, `ARGB` и `RenderPipelines`. **Минимум — 1.21.9.** |
+| **1.21.9 – 1.21.11** | `dopes-seamless-loading-screen-2.2+1.21.9-1.21.10-1.21.11.jar` |
+| **26.1 – 26.1.2** | `dopes-seamless-loading-screen-2.2+26.1-26.1.2.jar` |
+| **26.2** | `dopes-seamless-loading-screen-2.2+26.2.jar` |
+| **26.3** | `dopes-seamless-loading-screen-2.2+26.3.jar` |
+| 1.21.2 – 1.21.8 | **Не поддерживается.** Непортированные промежуточные версии. |
 
 Почему файлов несколько: 1.21.x обфусцирован, поэтому мод ремапится через intermediary-имена Fabric, а
 26.x поставляется необфусцированным и требует сборки без remapping; кроме того между 26.2 и 26.3
@@ -239,21 +259,28 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 
 | Настройка | По умолчанию | Что делает |
 |---|---|---|
+| **Основные** | | |
 | Мод включён | вкл | Включает или отключает весь мод. |
 | Проверка места на сервере | вкл | Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение. |
+| **Экран загрузки** | | |
+| Свой экран загрузки | вкл | Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку, полосу прогресса и подсказки мода. Выкл. — показывается ванильный экран загрузки. |
+| Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
+| Подсказки при загрузке | вкл | Показывать короткую подсказку (полезный совет, забавный факт или шутку) в левом верхнем углу экрана загрузки, шрифтом uni 05_53, встроенным в мод. |
+| Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. Работает, только когда на экране настоящий скриншот: без него (или на сервере со слайд-шоу) экран закрывается, как только мир готов. |
+| **Экраны переходов** | | |
 | Вспомогательные экраны переходов | вкл | Показывать скриншот (или слайд-шоу) поверх перехода при входе в мир или на сервер и при выходе из них. Экран плавно появляется, запускает загрузку и держится, пока не появится экран загрузки (скрывая промежуточные экраны), после чего плавно исчезает. Размытие и затемнение такие же, как на экране загрузки, но статичные. |
 | Время fade анимации переходов | 800 мс | Длительность появления и исчезновения вспомогательного экрана. Одна и та же для входа и выхода. 0 = без анимации. |
-| Слайд-шоу, если нет скриншота | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
-| Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. |
-| Свой экран загрузки | вкл | Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку и полосу прогресса мода. Выкл. — показывается ванильный экран загрузки. |
-| Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
+| **Отображение** | | |
 | Сила размытия | 16 | Насколько сильно размыт скриншот. 0 = без размытия, максимум 64. |
 | Скорость анимации размытия | 50% | Какую часть затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации. В слайд-шоу анимация размытия не работает. |
-| Затемнение фона | 35% | Затемнение поверх картинки. Применяется сразу целиком, плавно не появляется. |
+| Затемнение фона | 35% | Затемнение поверх картинки. Применяется сразу целиком, плавно не появляется. При сильных значениях (от 50%) переход между вспомогательным и основным экраном загрузки больше не затемняет картинку дважды. |
 | Время fade анимации | 800 мс | Сколько времени скриншот исчезает, когда мир уже готов. |
 | Разрешение картинки | 100% | Разрешение, в котором берётся скриншот. Картинка всегда масштабируется под экран, меньшее значение только делает её мягче. |
+| **Тайминги** | | |
 | Мин. время показа | 2000 мс | Держать экран загрузки видимым минимум столько. |
-| Макс. время показа | 30000 мс | Не держать экран загрузки дольше этого. |
+| Макс. время показа | 30000 мс | Не держать экран загрузки дольше этого, даже если чанки всё ещё грузятся. |
+| **Слайд-шоу** | | |
+| Слайд-шоу | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
 | Скорость смены слайд-шоу | 5000 мс | Как часто сменяются картинки слайд-шоу. |
 | Скорость анимации слайд-шоу | 1500 мс | Длительность кроссфейда между картинками слайд-шоу. |
 

@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.multiplayer.LevelLoadTracker;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,7 +77,6 @@ public abstract class LevelLoadingScreenMixin {
 
 		LevelLoadingScreen screen = (LevelLoadingScreen) (Object) this;
 		SeamlessHud.render(guiGraphics, screen.width, screen.height, SeamlessHud.Style.LOADING, 1.0F);
-		renderChunkCounter(guiGraphics, screen);
 		ci.cancel();
 	}
 
@@ -96,7 +94,10 @@ public abstract class LevelLoadingScreenMixin {
 		renderChunkCounter(guiGraphics, (LevelLoadingScreen) (Object) this);
 	}
 
-	/** Optional "loaded / total chunks" counter at the top of the screen. */
+	/**
+	 * Optional "loaded / total chunks" counter at the top of the screen. Drawn over the vanilla
+	 * loading screen with the default font and size, digits only.
+	 */
 	private void renderChunkCounter(GuiGraphics guiGraphics, LevelLoadingScreen screen) {
 		SeamlessConfig config = SeamlessConfigManager.get();
 		if (!config.modEnabled || !config.chunkCounter) {
@@ -104,12 +105,13 @@ public abstract class LevelLoadingScreenMixin {
 		}
 
 		int loaded = SeamlessSession.loadedChunks();
-		if (loaded < 0) {
+		int expected = SeamlessSession.expectedChunks();
+		if (loaded < 0 || expected <= 0) {
 			return;
 		}
 
-		Component text = Component.translatable("dopes_seamless_loading_screen.counter", loaded, SeamlessSession.expectedChunks());
-		guiGraphics.drawCenteredString(screen.getFont(), text, screen.width / 2, 20, 0xFFFFFFFF);
+		guiGraphics.drawCenteredString(screen.getFont(), loaded + " / " + expected,
+				screen.width / 2, 20, 0xFFFFFFFF);
 	}
 
 	/**
@@ -154,4 +156,5 @@ public abstract class LevelLoadingScreenMixin {
 		Minecraft.getInstance().setScreen(new SeamlessFadeScreen());
 		ci.cancel();
 	}
+
 }

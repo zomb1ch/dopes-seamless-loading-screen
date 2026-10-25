@@ -38,7 +38,7 @@ public final class SeamlessImage {
 	private static final AtomicInteger COUNTER = new AtomicInteger();
 
 	/** How many blur levels the strongest setting generates. */
-	private static final int MAX_BLUR_LEVELS = 5;
+	private static final int MAX_BLUR_LEVELS = 8;
 
 	/** How often each blur level is blurred; three passes look like a gaussian instead of a box. */
 	private static final int BLUR_ITERATIONS = 3;
@@ -377,7 +377,7 @@ public final class SeamlessImage {
 			return 0;
 		}
 
-		int levels = 31 - Integer.numberOfLeadingZeros(Math.min(strength, 64)) - 1;
+		int levels = 31 - Integer.numberOfLeadingZeros(strength) - 1;
 		return Math.max(1, Math.min(MAX_BLUR_LEVELS, levels));
 	}
 

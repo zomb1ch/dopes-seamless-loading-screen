@@ -62,10 +62,12 @@ def forkedFiles = [
 		'dopes/seamlessloading/SeamlessFadeScreen.java',
 		'dopes/seamlessloading/SeamlessHud.java',
 		'dopes/seamlessloading/SeamlessRenderTargets.java',
-		'dopes/seamlessloading/SeamlessTexture.java',
+		'dopes/seamlessloading/SeamlessTips.java',
+	'dopes/seamlessloading/SeamlessTexture.java',
 		'dopes/seamlessloading/mixin/CreateWorldScreenMixin.java',
 		'dopes/seamlessloading/mixin/LevelLoadingScreenMixin.java',
 		'dopes/seamlessloading/mixin/MinecraftClientMixin.java',
+		'dopes/seamlessloading/mixin/MouseHandlerMixin.java',
 		'dopes/seamlessloading/mixin/ScreenMixin.java',
 		'dopes/seamlessloading/mixin/WorldOpenFlowsMixin.java'
 ]
@@ -116,9 +118,10 @@ processResources {
 	inputs.property "mod_version", modVersion
 	// Без этого Gradle считает задачу актуальной и оставляет в jar старый диапазон версий.
 	inputs.property "minecraft_range", minecraftRange
+	inputs.property "modmenu_range", project.modmenu_range
 
 	filesMatching("fabric.mod.json") {
-		expand "mod_version": modVersion, "minecraft_range": minecraftRange
+		expand "mod_version": modVersion, "minecraft_range": minecraftRange, "modmenu_range": project.modmenu_range
 	}
 
 	// The sprite sheets live in ./sprites; bundle them into the mod resources.

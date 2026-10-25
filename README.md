@@ -40,11 +40,18 @@ over the Minecraft menu, covers the whole load and melts into the world — so i
 - **Chunk counter.** Optional `loaded / total` counter at the top of the screen.
 - **Wait for chunks.** The loading screen can stay open until the chunk count stops growing, so you
   never fade into an empty world. It gives up after a short grace period, which keeps void spawns
-  and registration lobbies from hanging.
+  and registration lobbies from hanging. It only runs while a real screenshot is on screen — with
+  the slideshow (or without a picture at all) the screen closes as soon as the world is ready.
 - **Min / max show time.** Never flashes by too quickly, never hangs forever.
 - **Refreshed loading screen.** The vanilla text, chunk map and progress bar are replaced by the
   mod's own animated text and icon plus a smooth progress bar that fills up while the world and its
   chunks load. It can be turned off to keep the vanilla look.
+- **Loading tips.** A short tip — a useful hint, a fun fact or a joke — sits in the top left corner
+  of the loading screen, drawn in the bundled uni 05_53 pixel font. Two to three lines at most, half
+  the screen wide, with a little dash on the left. Can be turned off in the settings.
+- **Settings with picture previews.** The custom loading screen, chunk counter, tips, waiting for all
+  chunks, blur, dim, blur animation speed and fade duration settings each show an animated preview of
+  the setting, generated with the mod's actual rendering pipeline.
 - **Server position check.** The server screenshot is only shown when you rejoin at (roughly) the
   same spot; if the server drops you into a lobby, the slideshow is shown instead.
 - **Everything is configurable** through Mod Menu (YetAnotherConfigLib), with 10 localizations:
@@ -58,7 +65,8 @@ them). The minimum supported version is **1.21.9**.
 
 | Versions | Why |
 |---|---|
-| 1.21 – 1.21.8 | **Not supported.** The mod needs `LevelLoadTracker` (added in 1.21.9), `Identifier`, `ARGB` and `RenderPipelines`. 1.21.9 is the minimum. |
+| 1.21.9 – 1.21.11 | The root jar, built for the newest of the three; Fabric's intermediary names are stable across them. |
+| 1.21.2 – 1.21.8 | **Not supported.** Unported intermediate versions. |
 | 26.1 – 26.1.2 | A second jar, built by the `versions/26x` project: Minecraft 26.x ships unobfuscated, so it needs the no-remapping Loom and its own sources. |
 | 26.2 | Jar from the `versions/262x` project (unobfuscated 26.x line). |
 | 26.3 | Jar from the `versions/263x` project. 26.2 and 26.3 cannot share one jar: `RenderPipeline` moved packages between them. |
@@ -80,7 +88,7 @@ servers that do not have it.
 ### Installation
 
 1. Install Fabric Loader for your Minecraft version.
-2. Drop the mod jar (for example `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar`) into
+2. Drop the mod jar (for example `dopes-seamless-loading-screen-2.2+1.21.9-1.21.10-1.21.11.jar`) into
    your `mods` folder.
 3. Also install [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API is **not** needed.
 4. Mod Menu is optional but recommended — the settings screen is opened through it.
@@ -104,21 +112,28 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 
 | Setting | Default | What it does |
 |---|---|---|
+| **General** | | |
 | Mod Enabled | on | Turns the whole mod on or off. |
 | Server Position Check | on | Remember where you were when you left a server, and only show the screenshot again when you rejoin at (roughly) the same spot. If you end up somewhere else (a lobby, another world, ...) the slideshow is shown instead, so the screenshot is never misleading. |
+| **Loading Screen** | | |
+| Custom Loading Screen | on | Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon, progress bar and tips. Off = the vanilla loading screen is shown. |
+| Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
+| Loading Tips | on | Show a short tip (a useful hint, a fun fact or a joke) in the top left corner of the loading screen, drawn in the bundled uni 05_53 pixel font. |
+| Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. Only active while a real screenshot is on screen: without one (or on a server that shows the slideshow instead) the screen closes as soon as the world is ready. |
+| **Transition Screens** | | |
 | Transition Screens | on | Show the screenshot (or slideshow) over the transition when entering a world or server and when leaving them. The screen fades in, starts the load and stays on top until the loading screen appears (hiding the screens in between), then fades out. Its blur and dim match the loading screen, but are static. |
 | Transition Fade Duration | 800 ms | How long the transition screen takes to appear and to disappear. The same for entering and leaving. 0 = no animation. |
-| Slideshow (no screenshot) | on | Show the slideshow when a world has no screenshot yet. |
-| Wait for All Chunks | on | Keep the loading screen open until the chunk count stops growing. |
-| Custom Loading Screen | on | Replace the vanilla loading screen text, chunk map and progress bar with the mod's own animated text, icon and progress bar. Off = the vanilla loading screen is shown. |
-| Chunk Counter | off | Show `loaded / total` chunks at the top of the screen. |
+| **Display** | | |
 | Blur Strength | 16 | How strongly the screenshot is blurred. 0 = no blur, max 64. |
 | Blur Animation Speed | 50% | How much of the fade the blur animation takes. 100% = the blur is gone exactly when the fade ends, 50% = twice as fast, 0% = no animation (the blur stays until the end of the fade). The slideshow never animates its blur. |
-| Background Dim | 35% | Darkening over the image. It is applied at once, it does not fade in. |
+| Background Dim | 35% | Darkening over the image. It is applied at once, it does not fade in. On strong settings (from 50% up) the handover between the auxiliary and the main loading screen no longer darkens the picture twice. |
 | Fade Duration | 800 ms | How long the screenshot takes to fade out once the world is ready. |
 | Image Resolution | 100% | Resolution the screenshot is sampled at. The picture is always scaled to the screen, so a lower value only makes it softer. |
+| **Timing** | | |
 | Min Show Time | 2000 ms | Keep the loading screen visible for at least this long. |
 | Max Show Time | 30000 ms | Never keep the loading screen open longer than this, even if chunks are still loading. |
+| **Slideshow** | | |
+| Slideshow | on | Show the slideshow when a world has no screenshot yet. |
 | Slideshow Speed | 5000 ms | How often slideshow images change. |
 | Slideshow Fade Speed | 1500 ms | Cross-fade duration between two slideshow images. |
 
@@ -127,12 +142,13 @@ The config file is `config/dopes_seamless_loading_screen.json`.
 Requires **JDK 21**.
 
 ```bash
-./gradlew build
+./gradlew build                   # 1.21.9 - 1.21.11
 ```
 
 The mod jar is written to `build/libs/dopes-seamless-loading-screen-<mod version>+<Minecraft version>.jar`.
 The Minecraft versions in the name come from `minecraft_versions` in `gradle.properties`; list
-several (comma separated) to build for a wider version range.
+several (comma separated) to build for a wider version range. The 26.x line is built by its own
+projects under `versions/`.
 
 ### License
 
@@ -142,7 +158,7 @@ several (comma separated) to build for a wider version range.
 
 ## Русский
 
-Клиентский мод для **Minecraft 1.21.9 – 26.3** на Fabric: превращает выход из мира или с сервера и
+Клиентский мод для **Minecraft 1.21.9 - 26.3** на Fabric: превращает выход из мира или с сервера и
 возвращение обратно в одну плавную бесшовную анимацию и обновляет вид экрана загрузки. Снимок того
 места, откуда вы уходите, делается на выходе, а при возвращении он плавно проявляется поверх меню
 Minecraft, держится всю загрузку и растворяется в мире — вместо безликого «Loading terrain…» вы
@@ -168,11 +184,18 @@ Minecraft, держится всю загрузку и растворяется 
 - **Счётчик чанков.** Необязательный счётчик «прогружено / всего» сверху экрана.
 - **Ожидание прогрузки чанков.** Экран загрузки держится, пока число чанков растёт, чтобы вы не
   проявлялись в пустом мире. Если чанки так и не приходят (спавн в пустоте, регистрация, лобби),
-  ожидание корректно заканчивается по таймауту и не зависает.
+  ожидание корректно заканчивается по таймауту и не зависает. Работает, только когда на
+  экране настоящий скриншот: без него (или на сервере со слайд-шоу) экран закрывается, как
+  только мир готов.
 - **Мин. и макс. время показа.** Экран не мелькнёт слишком быстро и не залипнет навсегда.
 - **Обновлённый вид экрана загрузки.** Ванильные текст, карта чанков и шкала заменены собственными
   анимированными текстом и иконкой и плавной шкалой, которая заполняется во время загрузки мира и
   чанков. Настройку можно выключить и оставить ванильный вид.
+- **Подсказки при загрузке.** В левом верхнем углу экрана загрузки — короткая подсказка: полезный
+  совет, забавный факт или шутка, нарисованная встроенным пиксельным шрифтом uni 05_53. Максимум
+  две-три строки, до половины ширины экрана, с чёрточкой слева. Отключается в настройках.
+- **Предпросмотр настроек.** Кнопка «Предпросмотр» в настройках показывает экран загрузки ровно так,
+  как он будет выглядеть с текущими настройками; клик листает подсказки.
 - **Проверка места на сервере.** Скриншот показывается только если вы вернулись примерно на то же место;
   если сервер забросил вас в лобби — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение.
 - **Всё настраивается** через Mod Menu (YetAnotherConfigLib), есть 10 локализаций: английская, русская,
@@ -186,7 +209,8 @@ Minecraft, держится всю загрузку и растворяется 
 
 | Версии | Почему |
 |---|---|
-| 1.21 – 1.21.8 | **Не поддерживается.** Моду нужны `LevelLoadTracker` (появился в 1.21.9), `Identifier`, `ARGB` и `RenderPipelines`. Минимум — 1.21.9. |
+| 1.21.9 – 1.21.11 | Корневой jar, собранный под самую новую из трёх; intermediary-имена Fabric между ними стабильны. |
+| 1.21.2 – 1.21.8 | **Не поддерживается.** Непортированные промежуточные версии. |
 | 26.1 – 26.1.2 | Отдельный jar из проекта `versions/26x`: Minecraft 26.x необфусцирован, поэтому нужен Loom без remapping и свои исходники. |
 | 26.2 | Jar из проекта `versions/262x` (необфусцированная линия 26.x). |
 | 26.3 | Jar из проекта `versions/263x`. Один jar на 26.2 и 26.3 невозможен: между ними переехал `RenderPipeline`. |
@@ -208,7 +232,7 @@ Minecraft, держится всю загрузку и растворяется 
 ### Установка
 
 1. Установите Fabric Loader для своей версии Minecraft.
-2. Положите jar мода (например, `dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar`) в папку
+2. Положите jar мода (например, `dopes-seamless-loading-screen-2.2+1.21.9-1.21.10-1.21.11.jar`) в папку
    `mods`.
 3. Установите также [YetAnotherConfigLib](https://modrinth.com/mod/yacl). Fabric API **не** нужен.
 4. Mod Menu не обязателен, но рекомендуется — через него открывается экран настроек.
@@ -232,21 +256,28 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 
 | Настройка | По умолчанию | Что делает |
 |---|---|---|
+| **Основные** | | |
 | Мод включён | вкл | Включает или отключает весь мод. |
 | Проверка места на сервере | вкл | Запоминать, где вы были при выходе с сервера, и показывать скриншот снова только если при входе вы оказались примерно на том же месте. Если вы попали в другое место (лобби, другой мир и т.п.) — показывается слайд-шоу, чтобы скриншот не вводил в заблуждение. |
+| **Экран загрузки** | | |
+| Свой экран загрузки | вкл | Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку, полосу прогресса и подсказки мода. Выкл. — показывается ванильный экран загрузки. |
+| Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
+| Подсказки при загрузке | вкл | Показывать короткую подсказку (полезный совет, забавный факт или шутку) в левом верхнем углу экрана загрузки, шрифтом uni 05_53, встроенным в мод. |
+| Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. Работает, только когда на экране настоящий скриншот: без него (или на сервере со слайд-шоу) экран закрывается, как только мир готов. |
+| **Экраны переходов** | | |
 | Вспомогательные экраны переходов | вкл | Показывать скриншот (или слайд-шоу) поверх перехода при входе в мир или на сервер и при выходе из них. Экран плавно появляется, запускает загрузку и держится, пока не появится экран загрузки (скрывая промежуточные экраны), после чего плавно исчезает. Размытие и затемнение такие же, как на экране загрузки, но статичные. |
 | Время fade анимации переходов | 800 мс | Длительность появления и исчезновения вспомогательного экрана. Одна и та же для входа и выхода. 0 = без анимации. |
-| Слайд-шоу, если нет скриншота | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
-| Ждать все чанки | вкл | Держать экран загрузки, пока число чанков растёт. |
-| Свой экран загрузки | вкл | Заменять ванильный текст загрузки, карту чанков и полосу прогресса на собственные анимированные текст, иконку и полосу прогресса мода. Выкл. — показывается ванильный экран загрузки. |
-| Счётчик чанков | выкл | Показывать «прогружено / всего» сверху экрана. |
+| **Отображение** | | |
 | Сила размытия | 16 | Насколько сильно размыт скриншот. 0 = без размытия, максимум 64. |
-| Скорость анимации размытия | 50% | Какую часть затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации (размытие держится до конца). В слайд-шоу анимация размытия не работает. |
-| Затемнение фона | 35% | Затемнение поверх картинки. Применяется сразу целиком, плавно не появляется. |
+| Скорость анимации размытия | 50% | Какую часть затухания занимает уменьшение размытия. 100% — размытие уходит ровно за время затухания, 50% — вдвое быстрее, 0% — без анимации. В слайд-шоу анимация размытия не работает. |
+| Затемнение фона | 35% | Затемнение поверх картинки. Применяется сразу целиком, плавно не появляется. При сильных значениях (от 50%) переход между вспомогательным и основным экраном загрузки больше не затемняет картинку дважды. |
 | Время fade анимации | 800 мс | Сколько времени скриншот исчезает, когда мир уже готов. |
 | Разрешение картинки | 100% | Разрешение, в котором берётся скриншот. Картинка всегда масштабируется под экран, меньшее значение только делает её мягче. |
+| **Тайминги** | | |
 | Мин. время показа | 2000 мс | Держать экран загрузки видимым минимум столько. |
 | Макс. время показа | 30000 мс | Не держать экран загрузки дольше этого, даже если чанки всё ещё грузятся. |
+| **Слайд-шоу** | | |
+| Слайд-шоу | вкл | Показывать слайд-шоу, когда у мира ещё нет скриншота. |
 | Скорость смены слайд-шоу | 5000 мс | Как часто сменяются картинки слайд-шоу. |
 | Скорость анимации слайд-шоу | 1500 мс | Длительность кроссфейда между картинками слайд-шоу. |
 
@@ -255,12 +286,13 @@ screenshots/seamless/slideshow/<любые .png, которые вы сюда п
 Нужен **JDK 21**.
 
 ```bash
-./gradlew build
+./gradlew build                   # 1.21.9 - 1.21.11
 ```
 
 Готовый jar появится в `build/libs/dopes-seamless-loading-screen-<версия мода>+<версия Minecraft>.jar`.
 Версии Minecraft в имени берутся из `minecraft_versions` в `gradle.properties`; перечислите несколько
-через запятую, чтобы собрать сразу под более широкий диапазон версий.
+через запятую, чтобы собрать сразу под более широкий диапазон версий. Линия 26.x собирается
+отдельными проектами в `versions/`.
 
 ### Лицензия
 

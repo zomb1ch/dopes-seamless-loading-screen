@@ -152,6 +152,13 @@ public final class SeamlessSession {
 			return false;
 		}
 
+		// Waiting only makes sense while the player actually looks at the screenshot of the world
+		// they are entering. Without one (or on a server that shows the slideshow instead), the
+		// vanilla behaviour of closing as soon as the world is ready is kept.
+		if (!SeamlessBackground.isShowingScreenshot()) {
+			return false;
+		}
+
 		// The server has not sent a new chunk for a while. This works for any server view distance,
 		// unlike comparing the count against a fixed expected number.
 		long now = Util.getMillis();

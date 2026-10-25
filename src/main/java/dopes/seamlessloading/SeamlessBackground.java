@@ -34,12 +34,19 @@ public final class SeamlessBackground {
 	private static boolean slideshow;
 	private static List<Object> slides = List.of();
 	private static int slideIndex;
+	/** {@code true} while the background is a single screenshot rather than a slideshow (or nothing). */
+	private static boolean showingScreenshot;
 
 	private SeamlessBackground() {
 	}
 
 	public static boolean isActive() {
 		return current != null;
+	}
+
+	/** {@code true} while the current background is a real screenshot (not a slideshow / nothing). */
+	public static boolean isShowingScreenshot() {
+		return current != null && showingScreenshot;
 	}
 
 	/** Shows a single screenshot, or a slideshow if that screenshot does not exist. */
@@ -51,6 +58,7 @@ public final class SeamlessBackground {
 		if (loaded != null) {
 			reset();
 			current = loaded;
+			showingScreenshot = true;
 			lastSwitch = Util.getMillis();
 			DopesSeamlessLoadingScreen.LOGGER.info("[Seamless] Showing the screenshot of {}", screenshot);
 			return;
@@ -68,6 +76,7 @@ public final class SeamlessBackground {
 	public static void showSlideshow() {
 		reset();
 		slideshow = true;
+		showingScreenshot = false;
 
 		List<Object> found = new ArrayList<>(collectSlideFiles());
 		if (found.isEmpty()) {
@@ -130,9 +139,11 @@ public final class SeamlessBackground {
 		// Stop the slideshow so it does not switch again while (and after) we cross fade.
 		slideshow = false;
 		slides = List.of();
+		showingScreenshot = true;
 
 		if (current == null) {
 			current = loaded;
+			showingScreenshot = true;
 			lastSwitch = Util.getMillis();
 			return;
 		}
@@ -164,6 +175,7 @@ public final class SeamlessBackground {
 		slideshow = false;
 		slides = List.of();
 		slideIndex = 0;
+		showingScreenshot = false;
 		firstShownMillis = 0L;
 	}
 
@@ -323,8 +335,15 @@ public final class SeamlessBackground {
 	/**
 	 * Draws the image as a static overlay: fully blurred, with the very same dim as the loading
 	 * screen. Used by the auxiliary transition screens, which never animate their blur.
+	 *
+	 * <p>{@code dimBelow} is {@code true} while the screen underneath already draws the very same
+	 * dim (the loading screen during the handover between the auxiliary and the main loading
+	 * screen). Drawing it on top of it as well would darken the picture twice, which shows as a
+	 * clearly visible pulse on strong dim settings — so there it is skipped, which slightly
+	 * lightens the picture during the fade instead of darkening it.
 	 */
-	public static void renderOverlay(GuiGraphics graphics, int screenWidth, int screenHeight, float alpha) {
+	public static void renderOverlay(GuiGraphics graphics, int screenWidth, int screenHeight, float alpha,
+			boolean dimBelow) {
 		if (current == null || alpha <= 0.001F) {
 			return;
 		}
@@ -337,7 +356,9 @@ public final class SeamlessBackground {
 		float blur = config.blurStrength > 0 && current.hasBlur() ? 1.0F : 0.0F;
 		drawBackground(graphics, screenWidth, screenHeight, alpha, blur,
 				incoming == null ? 0.0F : crossfadeProgress(config, now) * alpha);
-		renderDim(graphics, screenWidth, screenHeight, alpha);
+		if (!dimBelow) {
+			renderDim(graphics, screenWidth, screenHeight, alpha);
+		}
 	}
 
 	/** Rectangle (x, y, width, height) that covers the whole screen while keeping the aspect ratio. */

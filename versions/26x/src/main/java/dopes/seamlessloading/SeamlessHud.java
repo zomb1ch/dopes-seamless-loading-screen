@@ -40,6 +40,12 @@ public final class SeamlessHud {
 	private static final int MARGIN = 20;
 	/** Gap between the progress bar and the text / icon above it. */
 	private static final int TEXT_GAP = 10;
+	/** Gap between the chunk counter and the loading icon. */
+	private static final int COUNTER_GAP = TEXT_GAP + 6;
+	/** The icon frame is 7 source px high, but the visible art is only 5 px high. */
+	private static final int ICON_VISIBLE_CENTER = 12;
+	/** Optical nudge because the digits appear slightly low relative to the sprite. */
+	private static final int COUNTER_NUDGE_DOWN = 2;
 	/** Thickness of the progress bar. */
 	private static final int BAR_HEIGHT = 8;
 	/** How long one animation frame is shown. */
@@ -82,6 +88,7 @@ public final class SeamlessHud {
 		lastAdvance = 0L;
 		finishing = false;
 		finishElapsed = 0.0F;
+		SeamlessTips.reset();
 	}
 
 	/**
@@ -180,6 +187,9 @@ public final class SeamlessHud {
 		int textY = barTop - TEXT_GAP - text.height();
 
 		drawFrame(graphics, text, MARGIN, textY, fade);
+		if (style != Style.SAVING) {
+			SeamlessTips.render(graphics, width, fade);
+		}
 
 		if (style != Style.LOADING) {
 			return;
@@ -187,8 +197,14 @@ public final class SeamlessHud {
 
 		Sprite icon = icon();
 		if (icon != null) {
+			int iconX = width - MARGIN - icon.width();
 			int iconY = textY + (text.height() - icon.height()) / 2;
-			drawFrame(graphics, icon, width - MARGIN - icon.width(), iconY, fade);
+			drawFrame(graphics, icon, iconX, iconY, fade);
+
+			// Keep the counter beside the icon, matching the 1.21.x HUD layout.
+			if (SeamlessConfigManager.get().chunkCounter) {
+				drawChunkCounter(graphics, iconX, iconY, fade);
+			}
 		}
 
 		advance();
@@ -229,6 +245,24 @@ public final class SeamlessHud {
 		if (filled > 0) {
 			graphics.fill(left, barTop, left + filled, barBottom, ARGB.white(alpha));
 		}
+	}
+
+	/**
+	 * Draws the optional chunk counter to the left of the icon in the bundled pixel font.
+	 */
+	private static void drawChunkCounter(GuiGraphicsExtractor graphics, int iconX, int iconY, float alpha) {
+		int loaded = SeamlessSession.loadedChunks();
+		int expected = SeamlessSession.expectedChunks();
+		if (loaded < 0 || expected <= 0) {
+			return;
+		}
+
+		String text = loaded + " / " + expected;
+		int width = SeamlessTips.chunkCounterWidth(text);
+		int x = iconX - COUNTER_GAP - width;
+		int y = iconY + ICON_VISIBLE_CENTER + COUNTER_NUDGE_DOWN
+				- SeamlessTips.COUNTER_DIGITS_HEIGHT / 2;
+		SeamlessTips.drawChunkCounterText(graphics, text, x, y, alpha);
 	}
 
 	private static Sprite text(Style style) {

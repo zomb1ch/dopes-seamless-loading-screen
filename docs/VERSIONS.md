@@ -2,14 +2,15 @@
 
 One jar covers **Minecraft 1.21.9, 1.21.10 and 1.21.11**. The mod is compiled against the newest of
 them; Fabric's intermediary names are stable across those versions, so the same file loads on all
-three.
+three. Versions below 1.21.9 are not supported: their client API is older and several pieces
+(identifier type, text rendering, loading screen flow) cannot be shared with the 1.21.9+ sources.
 
 ## The pool
 
 | Versions | Status | Why |
 |---|---|---|
 | **1.21.9 – 1.21.11** | **Supported by the root jar** | The whole API the mod uses exists in all three. 1.21.11 was mostly a renaming release, and renames do not change intermediary names. |
-| 1.21 – 1.21.8 | **Not supported** | Out of scope: the mod needs `LevelLoadTracker` (1.21.9+), `Identifier`, `ARGB` and `RenderPipelines`. |
+| 1.21.1 – 1.21.8 | **Not supported** | Older API line: `ResourceLocation`, `RenderType` and a different loading screen flow. 1.21.9 reworked the loading screen around `LevelLoadTracker`, which is the API the root jar is built against. |
 | **26.1 – 26.1.2** | **Supported by the `versions/26x` jar** | Minecraft 26.x ships **unobfuscated**, so it needs the no-remapping Loom and its own sources — see below. |
 | **26.2** | **Supported by the `versions/262x` jar** | Unobfuscated; `Gui` owns the screen and `GameRenderer` the main render target — see below. |
 | **26.3** | **Supported by the `versions/263x` jar** | The same, plus `RenderPipeline` moved to another package in 26.3, so the descriptor of `RenderPipelines.GUI_TEXTURED` differs — 26.2 and 26.3 cannot share one jar. |
@@ -19,10 +20,10 @@ three.
 `versions/26x` is a second Gradle project that builds the same mod for the 26.x line:
 
 ```
-gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.1+26.1-26.1.2.jar
-gradlew -p versions/262x build     ->  versions/262x/build/libs/dopes-seamless-loading-screen-2.1+26.2.jar
-gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.1+26.3.jar
-gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.1+1.21.9-1.21.10-1.21.11.jar
+gradlew -p versions/26x build      ->  versions/26x/build/libs/dopes-seamless-loading-screen-2.2+26.1-26.1.2.jar
+gradlew -p versions/262x build     ->  versions/262x/build/libs/dopes-seamless-loading-screen-2.2+26.2.jar
+gradlew -p versions/263x build     ->  versions/263x/build/libs/dopes-seamless-loading-screen-2.2+26.3.jar
+gradlew build                      ->  build/libs/dopes-seamless-loading-screen-2.2+1.21.9-1.21.10-1.21.11.jar
 ```
 
 `build.ps1` runs all four builds and copies the finished jars (without the `-sources` ones) into the
@@ -66,7 +67,6 @@ the missing symbols:
 | 1.21.10 | 108 | `Util`, `Identifier`, `identifier()`, `getSamplerCache()` |
 | 1.21.9 | 108 | same as 1.21.10 |
 | 1.21.8 | 130 | + `LevelLoadingScreen.Reason`, `LevelLoadTracker`, `Minecraft#disconnectFromWorld(Component)` |
-| 1.21.1 | 170 | + `ARGB`, `RenderPipelines` |
 
 Two different kinds of difference show up:
 
@@ -80,8 +80,8 @@ Two different kinds of difference show up:
   does not set one at all: every texture is built at exactly the size it is drawn at, which makes the
   sample one to one and the filter irrelevant (see `SeamlessImage`).
 
-**1.21.8 is the hard lower bound**: from there down the mod would need genuinely different code
-paths, not just shims.
+**1.21.1 – 1.21.8 are not supported.** They sit below the supported 1.21.9+ line and would need
+another layout of the loading screen code, so they remain unported.
 
 ## Adding a version
 
@@ -116,11 +116,12 @@ What this line changed, and how it is handled:
 
 Every mixin target is unchanged from 26.1, so no injection needed touching.
 
-## Below 1.21.9: not supported
+## 1.21.1 – 1.21.8: not supported
 
-1.21.1 – 1.21.8 is out of scope. The mod needs `LevelLoadTracker` (added in 1.21.9), and the older
-lines build the loading screen differently. The tables below are kept as a reference for a future
-attempt — the `versions/1218x` project from that attempt was removed.
+These versions sit below the supported 1.21.9+ line and were never ported: they use
+`LevelLoadStatusManager` instead of `LevelLoadTracker` and a different screen flow. The tables below
+are kept as a reference for a future attempt — the `versions/1218x` project from that attempt was
+removed, and the 1.21.1 port was dropped because it never became stable enough.
 
 **Historical note (1.21.6 – 1.21.8):** it was ported once — `LevelLoadStatusManager` instead of
 `LevelLoadTracker`, the HUD ticked from `Minecraft#tick` (the screen has no `tick` there), the screen

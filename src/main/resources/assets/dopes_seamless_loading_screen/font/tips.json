@@ -1,0 +1,11 @@
+{
+  "providers": [
+    {
+      "type": "ttf",
+      "file": "dopes_seamless_loading_screen:uni05_53.ttf",
+      "size": 16.0,
+      "oversample": 8,
+      "shift": [0, 0]
+    }
+  ]
+}

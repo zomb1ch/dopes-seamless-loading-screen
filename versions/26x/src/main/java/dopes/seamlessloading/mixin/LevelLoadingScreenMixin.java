@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.LevelLoadingScreen;
 import net.minecraft.client.multiplayer.LevelLoadTracker;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,7 +77,6 @@ public abstract class LevelLoadingScreenMixin {
 
 		LevelLoadingScreen screen = (LevelLoadingScreen) (Object) this;
 		SeamlessHud.render(guiGraphics, screen.width, screen.height, SeamlessHud.Style.LOADING, 1.0F);
-		renderChunkCounter(guiGraphics, screen);
 		ci.cancel();
 	}
 
@@ -104,12 +102,12 @@ public abstract class LevelLoadingScreenMixin {
 		}
 
 		int loaded = SeamlessSession.loadedChunks();
-		if (loaded < 0) {
+		int expected = SeamlessSession.expectedChunks();
+		if (loaded < 0 || expected <= 0) {
 			return;
 		}
 
-		Component text = Component.translatable("dopes_seamless_loading_screen.counter", loaded, SeamlessSession.expectedChunks());
-		guiGraphics.centeredText(screen.getFont(), text, screen.width / 2, 20, 0xFFFFFFFF);
+		guiGraphics.centeredText(screen.getFont(), loaded + " / " + expected, screen.width / 2, 20, 0xFFFFFFFF);
 	}
 
 	/**

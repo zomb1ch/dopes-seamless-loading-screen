@@ -304,7 +304,7 @@ public final class SeamlessCurtain {
 			default -> 1.0F;
 		};
 
-		SeamlessBackground.renderOverlay(graphics, screenWidth, screenHeight, alpha);
+		SeamlessBackground.renderOverlay(graphics, screenWidth, screenHeight, alpha, dimDrawnBelow());
 
 		if (hudStyle != null) {
 			SeamlessHud.render(graphics, screenWidth, screenHeight, hudStyle, alpha);
@@ -315,6 +315,26 @@ public final class SeamlessCurtain {
 		float duration = fadeDuration();
 		return duration <= 0.0F ? 1.0F
 				: Mth.clamp((float) (Util.getMillis() - phaseStartMillis) / duration, 0.0F, 1.0F);
+	}
+
+	/**
+	 * From what dim strength on the handover between the auxiliary and the main loading screen
+	 * compensates the darkening. Weaker dims double up barely visibly, so they are left alone.
+	 */
+	private static final int DIM_COMPENSATION_MIN = 50;
+
+	/**
+	 * {@code true} while the loading screen with its own dim is underneath the overlay and that dim
+	 * is strong enough for the doubled darkening to be clearly visible. There the overlay skips its
+	 * own dim, which slightly lightens the picture during the fade instead of darkening it twice.
+	 */
+	private static boolean dimDrawnBelow() {
+		SeamlessConfig config = SeamlessConfigManager.get();
+		if (config.backgroundDim < DIM_COMPENSATION_MIN) {
+			return false;
+		}
+
+		return Minecraft.getInstance().screen instanceof LevelLoadingScreen;
 	}
 
 	private static float fadeDuration() {

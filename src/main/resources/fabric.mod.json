@@ -3,7 +3,7 @@
   "id": "dopes_seamless_loading_screen",
   "version": "${mod_version}",
   "name": "dope's Seamless Loading Screen",
-  "description": "Takes a screenshot of the game when you leave a world or server, and displays it when you rejoin it. With slideshow backgrounds, chunk counter and smooth fade animations.",
+  "description": "Takes a screenshot of the game when you leave a world or server, and displays it on the loading screen when you rejoin it. With slideshow backgrounds, loading tips, chunk counter, a settings preview and smooth fade animations.",
   "authors": [
     "dope_ee"
   ],
@@ -32,6 +32,6 @@
     "yet_another_config_lib_v3": ">=3.8.0"
   },
   "recommends": {
-    "modmenu": ">=16.0.0"
+    "modmenu": "${modmenu_range}"
   }
 }
