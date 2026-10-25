@@ -15,7 +15,7 @@ does not have the mod.
 
 **English** · [Русский](#русский)
 
-> **Links:** [Modrinth](https://modrinth.com/mod/dopes-seamless-loading-screen) ·
+> **Links:** [Modrinth](https://modrinth.com/mod/dsls) ·
 > [GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
 > [Issues & suggestions](https://github.com/zomb1ch/dopes-seamless-loading-screen/issues) ·
 > [Source code](https://github.com/zomb1ch/dopes-seamless-loading-screen)
@@ -148,7 +148,7 @@ The jar is written to `build/libs/dopes-seamless-loading-screen-<mod version>+<M
 
 ## Links
 
-- **Modrinth page:** <https://modrinth.com/mod/dopes-seamless-loading-screen>
+- **Modrinth page:** <https://modrinth.com/mod/dsls>
 - **GitHub:** <https://github.com/zomb1ch/dopes-seamless-loading-screen>
 - **Issues, bug reports and suggestions:**
   <https://github.com/zomb1ch/dopes-seamless-loading-screen/issues>
@@ -174,7 +174,7 @@ modify and include in modpacks.
 
 **Только клиент.** На сервере мод ставить не нужно, и он работает на серверах, где мода нет.
 
-> **Ссылки:** [Modrinth](https://modrinth.com/mod/dopes-seamless-loading-screen) ·
+> **Ссылки:** [Modrinth](https://modrinth.com/mod/dsls) ·
 > [GitHub](https://github.com/zomb1ch/dopes-seamless-loading-screen) ·
 > [Ошибки и предложения](https://github.com/zomb1ch/dopes-seamless-loading-screen/issues)
 
@@ -298,7 +298,7 @@ cd dopes-seamless-loading-screen
 
 ### Ссылки
 
-- **Страница на Modrinth:** <https://modrinth.com/mod/dopes-seamless-loading-screen>
+- **Страница на Modrinth:** <https://modrinth.com/mod/dsls>
 - **GitHub:** <https://github.com/zomb1ch/dopes-seamless-loading-screen>
 - **Ошибки и предложения:** <https://github.com/zomb1ch/dopes-seamless-loading-screen/issues>
 - **README (полная документация):**
